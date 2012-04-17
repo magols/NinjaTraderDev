@@ -21,7 +21,7 @@ namespace NinjaTrader.Indicator
 	{
 		#region Variables
 		// Wizard generated variables
-			private int sMAPeriod = 10; // Default setting for SMAPeriod
+			private int sMAPeriod = 240; // Default setting for SMAPeriod
 			private int aTRPeriod = 5; // Default setting for ATRPeriod
 		// User defined variables (add any user defined variables below)
 
@@ -36,19 +36,44 @@ namespace NinjaTrader.Indicator
 			Add(new Plot(Color.FromKnownColor(KnownColor.Orange), PlotStyle.Line, "PlotSMA"));
 			Overlay				= true;
 			CalculateOnBarClose = true;
+			BarsRequired = 24;
+
+			Add(PeriodType.Minute, 60);
+
+
 		}
 
 		/// <summary>
 		/// Called on each bar update event (incoming tick)
 		/// </summary>
 		protected override void OnBarUpdate()
-
 		{
-			// Use this method for calculating your indicator values. Assign a value to each
-			// plot below by replacing 'Close[0]' with your own formula.
-			PlotSMA.Set(Close[0] +1);
+
+            // OnBarUpdate() will be called on incoming tick events on all Bars objects added to the strategy
+            // We only want to process events on our primary Bars object (index = 0) which is set when adding
+            // the strategy to a chart
+            //if (BarsInProgress != 0)
+            //    return;
+
+			
+
+			if (CurrentBars[0] <= BarsRequired && CurrentBars[1] <= BarsRequired) return;
+	 		if (CurrentBars[1] < 1) return;
+
+
+            // Print("BarsinProgress: " + BarsInProgress + ", CurrentBar: " + CurrentBar + ", Closes[0]: "+ Closes[0][0]);
+
+                double sma = SMA(BarsArray[1], SMAPeriod)[0];
+				PlotSMA.Set(sma);
+
+ 
+ 
+
+
+
 			
 		}
+
 
 		#region Properties
 		[Browsable(false)]	// this line prevents the data series from being displayed in the indicator properties dialog, do not remove
