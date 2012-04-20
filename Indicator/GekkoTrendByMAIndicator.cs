@@ -144,8 +144,8 @@ namespace NinjaTrader.Indicator
 
 
 
-            // only draw on last bar
-            if (Count - 2 == CurrentBar || Count-1 == CurrentBar)
+            // only draw on last bar of the primary series
+            if (BarsInProgress == 0 && Count - 2 == CurrentBar)
             {
                 switch (currentOverallTrend)
                 {

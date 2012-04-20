@@ -43,8 +43,6 @@ namespace NinjaTrader.Indicator
         private Color overlapLondonNewyorkColor = Color.FromArgb(255, 255, 255);
 
 
-
-
         private TimeSpan midnightAfter = new TimeSpan(0, 0, 0);
         private TimeSpan midnightBefore = new TimeSpan(23, 59, 59);
         private TimeSpan spanAsianStart;
