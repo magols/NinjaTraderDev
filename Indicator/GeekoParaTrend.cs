@@ -62,7 +62,7 @@ namespace NinjaTrader.Indicator
             Add(new Plot(Color.Blue, PlotStyle.Dot, "psarslow"));
             Add(new Plot(Color.Red, PlotStyle.Dot, "psarfast"));
 
-            BarsRequired = 5;
+            BarsRequired = 3;
             Overlay = false;
 
         }
@@ -74,8 +74,7 @@ namespace NinjaTrader.Indicator
         {
             // check for enough data to start rocking!
             if (CurrentBars[0] <= BarsRequired || CurrentBars[1] <= BarsRequired || CurrentBars[2] <= BarsRequired) return;
-
-
+         
             switch (BarsInProgress)
             {
                 case 1:
@@ -88,39 +87,19 @@ namespace NinjaTrader.Indicator
                     ProcessFast();
                     break;
                 default:
-                    
-                    DoPlot();
-                    //if (!testprint && currTrendDaily == TrendType.UP && currTrendSLow == TrendType.UP && currTrendFast == TrendType.UP)
-                    //{
-                    //    Print("UP! " + Time[0]);
-                    //    testprint = true;
-                    //}
-                    //else
-                    //{
-                    //    testprint = false;
-                    //}
-                    //if (!testprint && currTrendDaily == TrendType.DOWN && currTrendSLow == TrendType.DOWN  && currTrendFast == TrendType.DOWN)
-                    //{
-                    //    Print("DOWN! " + Time[0]);
-                    //    testprint = true;
-                    //}
-                    //else
-                    //{
-                    //    testprint = false;
-                    //}
-
                     break;
             }
-
+            
+            DoPlot();
 
         }
 
         private void DoPlot()
         {
-            PlotDaily.Set((double)currTrendDaily);
-            PlotSlow.Set((double)currTrendSLow*0.75);
+             PlotDaily.Set((double)currTrendDaily);
+             PlotSlow.Set((double)currTrendSLow*0.75);
             PlotFast.Set((double)currTrendFast*0.5);
-            PlotGekkoTrend.Set(PlotDaily[0] + PlotSlow[0] + PlotFast[0]);
+             PlotGekkoTrend.Set(PlotDaily[0] + PlotSlow[0] + PlotFast[0]);
         }
 
         private void ProcessDaily()
@@ -128,13 +107,11 @@ namespace NinjaTrader.Indicator
             Log("DAILY, bar " + CurrentBar);
             ParabolicSAR p = ParabolicSAR(BarsArray[1], Acceleration, AccelerationMax, AccelerationStep);
             currTrendDaily = p[0] > Closes[1][0] ? TrendType.UP : TrendType.DOWN;
-            
         }
 
         private void ProcessSlow()
         {
             Log("SLOW, bar " + CurrentBar);
-
             ParabolicSAR p = ParabolicSAR(BarsArray[2], Acceleration, AccelerationMax, AccelerationStep);
             currTrendSLow = p[0] > Closes[2][0] ? TrendType.UP : TrendType.DOWN;
             
@@ -143,10 +120,8 @@ namespace NinjaTrader.Indicator
         private void ProcessFast()
         {
             Log("bar " + CurrentBar);
-
             ParabolicSAR p = ParabolicSAR(BarsArray[3], Acceleration, AccelerationMax, AccelerationStep);
             currTrendFast = p[0] > Closes[3][0] ? TrendType.UP : TrendType.DOWN;
-            
         }
 
         private void Log(string msg)
