@@ -54,8 +54,8 @@ namespace NinjaTrader.Indicator
             _triggerUpDateTime = DateTime.Now.Subtract(new TimeSpan(2, 0, 0)); 
             _triggerDownDateTime = DateTime.Now.Subtract(new TimeSpan(2, 0, 0));
             Add(new Plot(Color.FromKnownColor(KnownColor.Orange), PlotStyle.Line, "PlotConfirmation"));
-            //Add(new Plot(Color.FromKnownColor(KnownColor.Pink), PlotStyle.Line, "PlotUpper"));
-            //Add(new Plot(Color.FromKnownColor(KnownColor.LightGreen), PlotStyle.Line, "PlotLower"));
+            Add(new Plot(Color.FromKnownColor(KnownColor.Pink), PlotStyle.Line, "PlotUpper"));
+            Add(new Plot(Color.FromKnownColor(KnownColor.LightGreen), PlotStyle.Line, "PlotLower"));
             BarsRequired = 20;
             Overlay				= false;
         }
@@ -145,20 +145,10 @@ namespace NinjaTrader.Indicator
                 boundaryUpper = (double)beginning + 0.0100;
             }
             // Print(currPrice + ", " + ending  + " is between " + boundaryLower + " and " + boundaryUpper);
-            //PlotUpper.Set((double)boundaryUpper);
-            //PlotLower.Set((double)boundaryLower);  
+            PlotUpper.Set((double)boundaryUpper);
+            PlotLower.Set((double)boundaryLower);  
         }
-
-        //// check for crossovers
-        //if (CrossAbove(Closes[0], boundaryLower, 1))
-        //{
-        //    BackColor = Color.LightGreen;
-        //}
-        //else if (CrossBelow(Closes[0], boundaryUpper, 1))
-        //{
-        //    BackColor = Color.Pink;
-        //}
-
+ 
           decimal IsTriggerPoint(decimal d)
         {
             decimal tmp = decimal.Truncate((decimal)Close[0] * 10000) / 100;
@@ -186,18 +176,18 @@ namespace NinjaTrader.Indicator
           {
               get { return Values[0]; }
           }
-        //[Browsable(false)]	// this line prevents the data series from being displayed in the indicator properties dialog, do not remove
-        //[XmlIgnore()]		// this line ensures that the indicator can be saved/recovered as part of a chart template, do not remove
-        //public DataSeries PlotUpper
-        //{
-        //    get { return Values[1]; }
-        //}
-        //[Browsable(false)]	// this line prevents the data series from being displayed in the indicator properties dialog, do not remove
-        //[XmlIgnore()]		// this line ensures that the indicator can be saved/recovered as part of a chart template, do not remove
-        //public DataSeries PlotLower
-        //{
-        //    get { return Values[2]; }
-        //}
+          [Browsable(false)]	// this line prevents the data series from being displayed in the indicator properties dialog, do not remove
+          [XmlIgnore()]		// this line ensures that the indicator can be saved/recovered as part of a chart template, do not remove
+          public DataSeries PlotUpper
+          {
+              get { return Values[1]; }
+          }
+          [Browsable(false)]	// this line prevents the data series from being displayed in the indicator properties dialog, do not remove
+          [XmlIgnore()]		// this line ensures that the indicator can be saved/recovered as part of a chart template, do not remove
+          public DataSeries PlotLower
+          {
+              get { return Values[2]; }
+          }
 
         [Description("")]
         [GridCategory("Parameters")]

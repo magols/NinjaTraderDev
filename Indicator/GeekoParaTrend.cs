@@ -99,7 +99,7 @@ namespace NinjaTrader.Indicator
              PlotDaily.Set((double)currTrendDaily);
              PlotSlow.Set((double)currTrendSLow*0.75);
             PlotFast.Set((double)currTrendFast*0.5);
-             PlotGekkoTrend.Set(PlotDaily[0] + PlotSlow[0] + PlotFast[0]);
+         //    PlotGekkoTrend.Set(PlotDaily[0] + PlotSlow[0] + PlotFast[0]);
         }
 
         private void ProcessDaily()
