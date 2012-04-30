@@ -70,13 +70,13 @@ namespace NinjaTrader.Indicator
 		/// </summary>
 		protected override void Initialize()
 		{
-			Add(new Plot(Color.Black,"PP"));
-            Add(new Plot(Color.Blue, "R1"));
-            Add(new Plot(Color.Red, "S1"));
-            Add(new Plot(Color.Blue, "R2"));
-            Add(new Plot(Color.Red, "S2"));
-            Add(new Plot(Color.Blue, "R3"));
-            Add(new Plot(Color.Red, "S3"));
+			Add(new Plot(Color.Black,	"PP"));
+			Add(new Plot(Color.Blue,	"R1"));
+			Add(new Plot(Color.Red,		"S1"));
+			Add(new Plot(Color.Blue,	"R2"));
+			Add(new Plot(Color.Red,		"S2"));
+			Add(new Plot(Color.Blue,	"R3"));
+			Add(new Plot(Color.Red,		"S3"));
 			
 			AutoScale					= false;
 			Overlay						= true;
@@ -189,17 +189,7 @@ namespace NinjaTrader.Indicator
 		public Data.PivotRange PivotRangeType 
 		{
 			get { return pivotRangeType; }
-			set { pivotRangeType = value;
-
-            Plots[0].Name = "PP " + value;
-            Plots[1].Name = "R1 " + value;
-            Plots[2].Name = "S1 " + value;
-            Plots[3].Name = "R2 " + value;
-            Plots[4].Name = "S2 " + value;
-            Plots[5].Name = "R3 " + value;
-            Plots[6].Name = "S3 " + value;
-
-			}
+			set { pivotRangeType = value; }
 		}
 
 		/// <summary>
