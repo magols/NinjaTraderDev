@@ -353,6 +353,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Indicator\%40ZLEMA.cs" />
+    <Compile Include="Indicator\AmazingCrossoverIndi.cs" />
+    <Compile Include="Indicator\AmazingCrossoverRSI.cs" />
+    <Compile Include="Indicator\AmazingEMACrossoverIndi.cs" />
     <Compile Include="Indicator\BopaCandlesticks.cs" />
     <Compile Include="Indicator\BopaDebug.cs" />
     <Compile Include="Indicator\BopaIndicator.cs" />
@@ -423,6 +426,7 @@
     <Compile Include="Strategy\%40Strategy.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Strategy\AmazingCrossoverStrat.cs" />
     <Compile Include="Strategy\BopaStrategy.cs" />
     <Compile Include="Strategy\CompileMeStrat.cs" />
     <Compile Include="Strategy\EMAtriple.cs" />
@@ -437,6 +441,7 @@
     <Compile Include="Strategy\Tutorial1.cs" />
     <Compile Include="Strategy\Tutorial2.cs" />
     <Compile Include="Strategy\UserDefinedMethods.cs" />
+    <Compile Include="Strategy\vtRandom.cs" />
     <Compile Include="Type\%40BarsTypes.cs" />
     <Compile Include="Type\%40ChartStyles.cs" />
     <Compile Include="Type\%40DefaultFillType.cs" />

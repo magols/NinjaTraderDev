@@ -21,10 +21,10 @@ namespace NinjaTrader.Indicator
     {
         #region Variables
 
-        private int eMASlowPeriod = 10; // Default setting for EMASlowPeriod
-        private int eMAFastPeriod = 5; // Default setting for EMAFastPeriod
-        private int rSIPeriod = 10; // Default setting for RSIPeriod
-        private int aDXPeriod = 10; // Default setting for ADXPeriod
+        private int _emaSlowPeriod = 10; // Default setting for EMASlowPeriod
+        private int _emaFastPeriod = 5; // Default setting for EMAFastPeriod
+        private int _rsiPeriod = 10; // Default setting for RSIPeriod
+        private int _adxPeriod = 10; // Default setting for ADXPeriod
         private int _atrPeriod = 10;
         private double _atrExclusionMultiplier = 1;
 
@@ -47,8 +47,14 @@ namespace NinjaTrader.Indicator
         /// </summary>
         protected override void Initialize()
         {
+           
+
             Add(new Plot(Color.FromKnownColor(KnownColor.Blue), PlotStyle.Line, "EMASlowPlot"));
             Add(new Plot(Color.FromKnownColor(KnownColor.OrangeRed), PlotStyle.Line, "EMAFastPlot"));
+
+
+
+
             Overlay = true;
         }
 
@@ -58,9 +64,12 @@ namespace NinjaTrader.Indicator
         protected override void OnBarUpdate()
         {
 
+            if (CurrentBar <= BarsRequired) return;
+
             SetupObjects();
 
-           _signal =  GetSignalState();
+
+           GetSignalState();
             
 
             EMAFastPlot.Set(_emaFast[0]);
@@ -87,6 +96,7 @@ namespace NinjaTrader.Indicator
                 CrossAbove(_emaFast, _emaSlow, _crossoverLookbackPeriod))
             {
                 BackColor = Color.LightGreen;
+                _signal = 1;
                 return 1;
             }
 
@@ -95,38 +105,40 @@ namespace NinjaTrader.Indicator
                  CrossBelow(_emaFast, _emaSlow, _crossoverLookbackPeriod))
             {
                  BackColor = Color.Pink;
+                _signal = -1;
                 return -1;
             }
 
-            
+            _signal = 0;
             return retSignal;
         }
 
 
-        private void SetupObjects()
+        public void SetupObjects()
         {
+
             if (_emaSlow == null)
-                _emaSlow = EMA(eMASlowPeriod);
+                _emaSlow = EMA(_emaSlowPeriod);
             if (_emaFast == null)
-                _emaFast = EMA(eMAFastPeriod);
+                _emaFast = EMA(_emaFastPeriod);
             if (_rsi == null)
-                _rsi = RSI(Median, rSIPeriod, 1);
+                _rsi = RSI(Median, _rsiPeriod, 1);
             if (_adx == null)
-                _adx = ADX(aDXPeriod);
+                _adx = ADX(_adxPeriod);
             if (_atr == null)
                 _atr = ATR(_atrPeriod);
         }
 
         #region plots
         [Browsable(false)]	// this line prevents the data series from being displayed in the indicator properties dialog, do not remove
-        [XmlIgnore()]		// this line ensures that the indicator can be saved/recovered as part of a chart template, do not remove
+        [XmlIgnore]		// this line ensures that the indicator can be saved/recovered as part of a chart template, do not remove
         public DataSeries EMASlowPlot
         {
             get { return Values[0]; }
         }
 
         [Browsable(false)]	// this line prevents the data series from being displayed in the indicator properties dialog, do not remove
-        [XmlIgnore()]		// this line ensures that the indicator can be saved/recovered as part of a chart template, do not remove
+        [XmlIgnore]		// this line ensures that the indicator can be saved/recovered as part of a chart template, do not remove
         public DataSeries EMAFastPlot
         {
             get { return Values[1]; }
@@ -170,24 +182,24 @@ namespace NinjaTrader.Indicator
         [GridCategory("Parameters")]
         public int EMASlowPeriod
         {
-            get { return eMASlowPeriod; }
-            set { eMASlowPeriod = Math.Max(1, value); }
+            get { return _emaSlowPeriod; }
+            set { _emaSlowPeriod = Math.Max(1, value); }
         }
 
         [Description("Period for the fast EMA")]
         [GridCategory("Parameters")]
         public int EMAFastPeriod
         {
-            get { return eMAFastPeriod; }
-            set { eMAFastPeriod = Math.Max(1, value); }
+            get { return _emaFastPeriod; }
+            set { _emaFastPeriod = Math.Max(1, value); }
         }
 
         [Description("Period for RSI, applied to median")]
         [GridCategory("Parameters")]
         public int RSIPeriod
         {
-            get { return rSIPeriod; }
-            set { rSIPeriod = Math.Max(1, value); }
+            get { return _rsiPeriod; }
+            set { _rsiPeriod = Math.Max(1, value); }
         }
 
 
@@ -217,8 +229,8 @@ namespace NinjaTrader.Indicator
         [GridCategory("Parameters")]
         public int ADXPeriod
         {
-            get { return aDXPeriod; }
-            set { aDXPeriod = Math.Max(1, value); }
+            get { return _adxPeriod; }
+            set { _adxPeriod = Math.Max(1, value); }
         }
         [Description("Minimum for ADX")]
         [GridCategory("Parameters")]
