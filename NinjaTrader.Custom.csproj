@@ -376,6 +376,8 @@
     <Compile Include="Indicator\GekkoAUDUSD0050.cs" />
     <Compile Include="Indicator\GekkoEMAcrossover.cs" />
     <Compile Include="Indicator\GekkoTrendByMAIndicator.cs" />
+    <Compile Include="Indicator\TestIndicator1.cs" />
+    <Compile Include="Indicator\TestIndicator2.cs" />
     <Compile Include="Indicator\UserDefinedMethods.cs" />
     <Compile Include="MarketAnalyzer\%40AskPrice.cs" />
     <Compile Include="MarketAnalyzer\%40AverageDailyVolume.cs" />
@@ -427,6 +429,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Strategy\AmazingCrossoverStrat.cs" />
+    <Compile Include="Strategy\AmazingCrossoverTrailStrat.cs" />
+    <Compile Include="Strategy\BaseForexStrategy.cs" />
     <Compile Include="Strategy\BopaStrategy.cs" />
     <Compile Include="Strategy\CompileMeStrat.cs" />
     <Compile Include="Strategy\EMAtriple.cs" />
@@ -438,6 +442,9 @@
     <Compile Include="Strategy\MyCustomStrategyRSIcross.cs" />
     <Compile Include="Strategy\StrategyFramework.cs" />
     <Compile Include="Strategy\SuperTrendDemo.cs" />
+    <Compile Include="Strategy\TestStrategy.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Strategy\Tutorial1.cs" />
     <Compile Include="Strategy\Tutorial2.cs" />
     <Compile Include="Strategy\UserDefinedMethods.cs" />
