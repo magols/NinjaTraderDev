@@ -34,13 +34,17 @@ namespace NinjaTrader.Strategy
         private int _crossoverLookbackPeriod = 1;
 
         private AmazingCrossoverIndi _indi;
+
+       
         #endregion
 
+ 
         /// <summary>
         /// This method is used to configure the strategy and is called once before any strategy method is called.
         /// </summary>
         protected override void MyInitialize()
         {
+
             if (_indi == null)
             {
                 _indi = AmazingCrossoverIndi(_adxMin, _adxPeriod, _atrExclusionMultiplier, _atrPeriod,
@@ -77,10 +81,7 @@ namespace NinjaTrader.Strategy
             _tradeState = TradeState.InitialStop;
         }
 
-        protected override void ManagePositions()
-        {
-            ManageTradeByBreakevenTrail();
-        }
+
 
 
 
@@ -173,6 +174,44 @@ namespace NinjaTrader.Strategy
    
 
         #endregion
-   
+
+
+        //#region properties MM
+
+        //[Description("Ticks in profit before moving stoploss to breakeven(-ish)")]
+        //[GridCategory("Money management")]
+        //public int ProfitTicksBeforeBreakeven
+        //{
+        //    get { return _mmProfitTicksBeforeBreakeven; }
+        //    set { _mmProfitTicksBeforeBreakeven = Math.Max(1, value); }
+        //}
+
+        //[Description("Initial stoploss in ticks")]
+        //[GridCategory("Money management")]
+        //public int InitialStoploss
+        //{
+        //    get { return _mmInitialSL; }
+        //    set { _mmInitialSL = Math.Max(1, value); }
+        //}
+
+
+        //[Description("Ticksbeyond breakeven to move from initial stop")]
+        //[GridCategory("Money management")]
+        //public int BreakevenTicks
+        //{
+        //    get { return _mmBreakevenTicks; }
+        //    set { _mmBreakevenTicks = Math.Max(1, value); }
+        //}
+
+        //[Description("Trailing stop ticks, when starting to trail from breakeven")]
+        //[GridCategory("Money management")]
+        //public int TrailTicks
+        //{
+        //    get { return _mmTrailTicks; }
+        //    set { _mmTrailTicks = Math.Max(1, value); }
+        //}
+
+        //#endregion
+
     }
 }

@@ -378,6 +378,7 @@
     <Compile Include="Indicator\GekkoTrendByMAIndicator.cs" />
     <Compile Include="Indicator\TestIndicator1.cs" />
     <Compile Include="Indicator\TestIndicator2.cs" />
+    <Compile Include="Indicator\TestProperties.cs" />
     <Compile Include="Indicator\UserDefinedMethods.cs" />
     <Compile Include="MarketAnalyzer\%40AskPrice.cs" />
     <Compile Include="MarketAnalyzer\%40AverageDailyVolume.cs" />
@@ -438,15 +439,11 @@
     <Compile Include="Strategy\GekkoEMACrossoverStrat.cs" />
     <Compile Include="Strategy\GekkoPSARstrat.cs" />
     <Compile Include="Strategy\GekkoStochastics.cs" />
-    <Compile Include="Strategy\MyCustomStrategy.cs" />
-    <Compile Include="Strategy\MyCustomStrategyRSIcross.cs" />
     <Compile Include="Strategy\StrategyFramework.cs" />
     <Compile Include="Strategy\SuperTrendDemo.cs" />
     <Compile Include="Strategy\TestStrategy.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Strategy\Tutorial1.cs" />
-    <Compile Include="Strategy\Tutorial2.cs" />
     <Compile Include="Strategy\UserDefinedMethods.cs" />
     <Compile Include="Strategy\vtRandom.cs" />
     <Compile Include="Type\%40BarsTypes.cs" />
