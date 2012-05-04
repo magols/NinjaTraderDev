@@ -1,5 +1,6 @@
 #region Using declarations
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -18,7 +19,7 @@ namespace NinjaTrader.Strategy
     public abstract  class BaseForexStrategy : Strategy, ICustomTypeDescriptor
     {
         protected TradeState _tradeState = TradeState.InitialStop;
-       
+        protected List<string> IndicatorPropertiesUsed = new List<string>();
 
         #region Account variables
         private int _counter = 1; // Default for Counter
@@ -61,16 +62,18 @@ namespace NinjaTrader.Strategy
 
         public enum ExitType
         {
-            None,
+            Custom,
             IntialToBreakevenToTrailing,
-            TrailingATR
+            //TrailingATR
         }
 
         #endregion
 
 
         #region Abstract Methods
-        // to keep unique strategy stuff 
+
+        protected abstract void SetupIndicatorProperties();
+       // to keep unique strategy stuff 
         protected abstract void MyOnBarUpdate();
         // when we are flat, we are looking for new opportunities to entry
         protected abstract void LookForTrade();
@@ -81,7 +84,7 @@ namespace NinjaTrader.Strategy
         // the inherited strategy initializes here
         protected abstract void MyInitialize();
 
-       
+        protected abstract void MyManagePosition();
 
         // this is called by an exit event from the positions, so we can tell the child strategy that the position was closed, and it can reset the signals
         // protected abstract void OnExit(object sender, int positionID);
@@ -93,7 +96,6 @@ namespace NinjaTrader.Strategy
         
         #region methods
 
-        
 
         /// <summary>
         /// Called on each bar update event (incoming tick)
@@ -110,6 +112,7 @@ namespace NinjaTrader.Strategy
             {
                 if (IsFlat)
                 {
+                    SetStopLoss(CalculationMode.Ticks, _mmInitialSL);
                     LookForTrade();
                 }
                 else
@@ -123,21 +126,14 @@ namespace NinjaTrader.Strategy
 
         protected override void Initialize()
         {
-           
 
-            //			System.Diagnostics.EventLog appLog =   new System.Diagnostics.EventLog() ;
-    //        Debug("[GENERAL] \t initializing framework", 1);
-        
-        //    ClearOutputWindow();
+           
+            //    ClearOutputWindow();
             
             CalculateOnBarClose = true;
             //Unmanaged = false;
             MyInitialize();
-            //if (logLevel > 1)
-            //    TraceOrders = trace;
 
-            // you get an error, dont try to assing the event here
-            //positionManager.Position1.Exited += new PositionExited(OnExit);
         }
 
  
@@ -176,38 +172,89 @@ namespace NinjaTrader.Strategy
                     ManageTradeByBreakevenTrail();
                     break;
 
-                case ExitType.TrailingATR:
-                    ManageTradeByTrailingATR();
-                    break;
-                default:
+                //case ExitType.TrailingATR:
+                //    ManageTradeByTrailingATR();
+                //    break;
+                default: 
+                    MyManagePosition();
                     break;
 
             }
         }
 
-        private void ManageTradeByTrailingATR()
+        protected void GoFlat()
         {
-            double risk = _risk;
-            if (IsLong)
-            {
-                if (High[0] - risk > _lossLevel)
-                {
-                    _lossLevel = High[0] - risk;
-                    //					P("LONG: changing stop loss level to " + _lossLevel.ToString("N2"));
-                    SetStopLoss(CalculationMode.Price, _lossLevel);
-                }
-            }
-            else if (IsShort)
-            {
-                if (Low[0] + risk < _lossLevel)
-                {
-                    _lossLevel = Low[0] + risk;
-                    //					P("SHORT: changing stop loss level to " + _lossLevel.ToString("N2"));
-                    SetStopLoss(CalculationMode.Price, _lossLevel);
-                }
-            }
-            DrawLossLevel();
+            if (IsLong) _exit = ExitLong();
+            if (IsShort) _exit = ExitShort();
         }
+
+        protected int ComputeQty(double volatilityRisk)
+        {
+            double dollarRisk = _equity * (_percentRisk / 100.0);
+            double tickRisk = Round2Tick(volatilityRisk / this.TickSize);
+            double qty = (dollarRisk / (volatilityRisk * this.PointValue));
+
+            int rounded;
+
+            // round the shares into a lot-friendly number, applies only to stocks
+            //			rounded = (int) (Math.Round(qty/100.0, 0) * 100.0);
+
+            rounded = (int)Math.Round(qty, 0);
+
+            //			P("vol risk=" + volatilityRisk.ToString("N2") 
+            //				+ ", $ risk=" + dollarRisk.ToString("C2") 
+            //				+ ", equity=" + _equity.ToString("C2")
+            //				+ ", qty=" + qty.ToString("N0") 
+            //				+ ", rounded=" + rounded.ToString("N0")
+            //				+ ", price=" + Close[0].ToString());
+
+            return rounded;
+        }
+
+        protected void DrawLossLevel()
+        {
+            if (IsFlat) return;
+
+            Color color = Color.Black;
+
+            if (IsLong)
+                color = Color.Magenta;
+            else if (IsShort)
+                color = Color.Cyan;
+
+            this.DrawDiamond("d" + CurrentBar, true, 0, _lossLevel, color);
+        }
+
+        protected bool StillHaveMoney { get { return _equity > 0; } }
+
+        #endregion
+
+
+        #region methods MM
+        //private void ManageTradeByTrailingATR()
+        //{
+        //    double risk = _risk;
+        //    if (IsLong)
+        //    {
+        //        if (High[0] - risk > _lossLevel)
+        //        {
+        //            _lossLevel = High[0] - risk;
+        //            //					P("LONG: changing stop loss level to " + _lossLevel.ToString("N2"));
+        //            SetStopLoss(CalculationMode.Price, _lossLevel);
+        //        }
+        //    }
+        //    else if (IsShort)
+        //    {
+        //        if (Low[0] + risk < _lossLevel)
+        //        {
+        //            _lossLevel = Low[0] + risk;
+        //            //					P("SHORT: changing stop loss level to " + _lossLevel.ToString("N2"));
+        //            SetStopLoss(CalculationMode.Price, _lossLevel);
+        //        }
+        //    }
+        //    DrawLossLevel();
+        //}
+
 
         protected void ManageTradeByBreakevenTrail()
         {
@@ -261,53 +308,8 @@ namespace NinjaTrader.Strategy
             }
             DrawLossLevel();
         }
-
-        protected void GoFlat()
-        {
-            if (IsLong) _exit = ExitLong();
-            if (IsShort) _exit = ExitShort();
-        }
-
-        protected int ComputeQty(double volatilityRisk)
-        {
-            double dollarRisk = _equity * (_percentRisk / 100.0);
-            double tickRisk = Round2Tick(volatilityRisk / this.TickSize);
-            double qty = (dollarRisk / (volatilityRisk * this.PointValue));
-
-            int rounded;
-
-            // round the shares into a lot-friendly number, applies only to stocks
-            //			rounded = (int) (Math.Round(qty/100.0, 0) * 100.0);
-
-            rounded = (int)Math.Round(qty, 0);
-
-            //			P("vol risk=" + volatilityRisk.ToString("N2") 
-            //				+ ", $ risk=" + dollarRisk.ToString("C2") 
-            //				+ ", equity=" + _equity.ToString("C2")
-            //				+ ", qty=" + qty.ToString("N0") 
-            //				+ ", rounded=" + rounded.ToString("N0")
-            //				+ ", price=" + Close[0].ToString());
-
-            return rounded;
-        }
-
-        protected void DrawLossLevel()
-        {
-            if (IsFlat) return;
-
-            Color color = Color.Black;
-
-            if (IsLong)
-                color = Color.Magenta;
-            else if (IsShort)
-                color = Color.Cyan;
-
-            this.DrawDiamond("d" + CurrentBar, true, 0, _lossLevel, color);
-        }
-
-        protected bool StillHaveMoney { get { return _equity > 0; } }
-
         #endregion
+
 
         #region Helpers
         protected bool IsFlat { get { return Position.MarketPosition == MarketPosition.Flat; } }
@@ -326,7 +328,7 @@ namespace NinjaTrader.Strategy
 
         #region Money management variables
 
-        protected ExitType _exitType = ExitType.None;
+        protected ExitType _exitType = ExitType.Custom;
         protected double _risk;
         protected double _percentRisk = 1.0; // Default for PercentRisk
         protected double _lossLevel;
@@ -340,12 +342,13 @@ namespace NinjaTrader.Strategy
 
 
         // atr multiplier trail stop
-        private double _mmAtrMultiplier = 3;
+        protected double _mmAtrMultiplier = 3.0;
+        protected int _mmAtrPeriod = 10;
         #endregion
 
         #region Money management properties
 
-        [Description("A counter used for optimization runs")]
+        [Description("")]
         [GridCategory("Money management")]
         [RefreshProperties(RefreshProperties.All)]
         public ExitType ExitStrategy
@@ -380,6 +383,7 @@ namespace NinjaTrader.Strategy
 
 
         [Description("Ticksbeyond breakeven to move from initial stop")]
+        
         [GridCategory("Money management")]
         public int BreakevenTicks
         {
@@ -396,7 +400,15 @@ namespace NinjaTrader.Strategy
         }
 
 
-        [Description("Lookback period for crossover convergence")]
+        [Description("Period for trailing ATR")]
+        [GridCategory("Money management")]
+        public int MMAtrPeriod
+        {
+            get { return _mmAtrPeriod; }
+            set { _mmAtrPeriod = Math.Max(1, value); }
+        }
+
+        [Description("Multiplier for trailing ATR")]
         [GridCategory("Money management")]
         public double MMAtrMultiplier
         {
@@ -406,44 +418,187 @@ namespace NinjaTrader.Strategy
 
         #endregion
 
-        
+
+        #region Indicator Properties
+        protected int _emaSlowPeriod = 10; // Default setting for EMASlowPeriod
+        [Description("Period for the slow EMA")]
+        [GridCategory("Indicator")]
+        public int EMASlowPeriod
+        {
+            get { return _emaSlowPeriod; }
+            set { _emaSlowPeriod = Math.Max(1, value); }
+        }
+
+        protected int _emaFastPeriod = 5; // Default setting for EMAFastPeriod
+        [Description("Period for the fast EMA")]
+        [GridCategory("Indicator")]
+        public int EMAFastPeriod
+        {
+            get { return _emaFastPeriod; }
+            set { _emaFastPeriod = Math.Max(1, value); }
+        }
+
+        protected int _rsiPeriod = 10; // Default setting for RSIPeriod
+        [Description("Period for RSI")]
+        [GridCategory("Indicator")]
+        public int RSIPeriod
+        {
+            get { return _rsiPeriod; }
+            set { _rsiPeriod = Math.Max(1, value); }
+        }
+
+
+
+        protected int _rsiLower = 45;
+        [Description("Period for RSI lower")]
+        [GridCategory("Indicator")]
+        public int RSILower
+        {
+            get { return _rsiLower; }
+            set { _rsiLower = Math.Max(1, value); }
+        }
+
+        protected int _rsiUpper = 55;
+        [Description("Period for RSI upper")]
+        [GridCategory("Indicator")]
+        public int RSIUpper
+        {
+            get { return _rsiUpper; }
+            set { _rsiUpper = Math.Max(1, value); }
+        }
+
+        protected int _adxPeriod = 10; // Default setting for ADXPeriod
+        [Description("Period for ADX")]
+        [GridCategory("Indicator")]
+        public int ADXPeriod
+        {
+            get { return _adxPeriod; }
+            set { _adxPeriod = Math.Max(1, value); }
+        }
+
+        protected int _adxMin = 20;
+        [Description("Minimum for ADX")]
+        [GridCategory("Indicator")]
+        public int ADXMinimum
+        {
+            get { return _adxMin; }
+            set { _adxMin = Math.Max(1, value); }
+        }
+
+        protected int _atrPeriod = 10;
+        [Description("Period for ATR")]
+        [GridCategory("Indicator")]
+        public int ATRPeriod
+        {
+            get { return _atrPeriod; }
+            set { _atrPeriod = Math.Max(1, value); }
+        }
+
+        protected double _atrExclusionMultiplier = 1;
+        [Description("ATR multiplier for exluding trades")]
+        [GridCategory("Indicator")]
+        public double ATRExclusionMultiplier
+        {
+            get { return _atrExclusionMultiplier; }
+            set { _atrExclusionMultiplier = Math.Max(1, value); }
+        }
+
+        protected int _crossoverLookbackPeriod = 1;
+        [Description("Lookback period for crossover convergence")]
+        [GridCategory("Indicator")]
+        public int CrossoverLookbackPeriod
+        {
+            get { return _crossoverLookbackPeriod; }
+            set { _crossoverLookbackPeriod = Math.Max(1, value); }
+        }
+
+
+
+
+        #endregion
+
+
         #region Custom Property Manipulation
 
-        private void ModifyProperties(PropertyDescriptorCollection col)
+        private void ModifyMoneyManagementProperties(PropertyDescriptorCollection col)
         {
-            //PercentRisk
-            //ProfitTicksBeforeBreakeven
-            //InitialStoploss
-            //BreakevenTicks
-            //TrailTicks
-            //MMAtrMultiplier
+            List<string> propertiesToUse = new List<string>();
+            propertiesToUse.Add("ExitStrategy");
 
-            
-            switch (ExitStrategy)
+           switch (ExitStrategy)
             {
                 case ExitType.IntialToBreakevenToTrailing:
-                    col.Remove(col.Find("PercentRisk", true));
-                    col.Remove(col.Find("MMAtrMultiplier", true));   
+                    propertiesToUse.Add("BreakevenTicks");
+                    propertiesToUse.Add("InitialStoploss");
+                    propertiesToUse.Add("ProfitTicksBeforeBreakeven");
+                    propertiesToUse.Add("TrailTicks");
                     break;
 
-                case ExitType.TrailingATR:
-                    col.Remove(col.Find("PercentRisk", true));    
-                    col.Remove(col.Find("ProfitTicksBeforeBreakeven", true));    
-                    col.Remove(col.Find("InitialStoploss", true));    
-                    col.Remove(col.Find("BreakevenTicks", true));    
-                    col.Remove(col.Find("TrailTicks", true));    
-                    break;
+                //case ExitType.TrailingATR:
+                //    propertiesToUse.Add("MMAtrMultiplier");
+                //    propertiesToUse.Add("MMAtrPeriod");
+                //    propertiesToUse.Add("PercentRisk");
+                //    break;
 
-                case ExitType.None:
-                    col.Remove(col.Find("PercentRisk", true));    
-                    col.Remove(col.Find("ProfitTicksBeforeBreakeven", true));    
-                    col.Remove(col.Find("InitialStoploss", true));    
-                    col.Remove(col.Find("BreakevenTicks", true));    
-                    col.Remove(col.Find("TrailTicks", true));
-                    col.Remove(col.Find("MMAtrMultiplier", true));
+                case ExitType.Custom:
                     break;
                 
 
+            }
+
+            foreach (PropertyDescriptor propDesc in col)
+            {
+
+                if (propDesc != null && propDesc.Category != null)
+                {          
+
+                    if (propDesc.Category.Contains("management") &&
+                        !propertiesToUse.Contains(propDesc.DisplayName))
+                    {
+                        try
+                        {
+                            PropertyDescriptor tmp = col.Find(propDesc.Name, true);
+                            if (tmp != null)
+                            {
+                                 col.Remove(tmp);
+                            }
+                            else { Print("was null"); }
+                        }
+                        catch (NullReferenceException ex)
+                        {
+                            Print(ex.ToString());
+                        }
+                    }
+                }
+            }
+        }
+
+        protected void ModifyIndicatorProperties(PropertyDescriptorCollection col)
+        {
+            foreach (PropertyDescriptor propDesc in col)
+            {
+                // wtf propdesc can be null????????
+                if (propDesc != null && propDesc.Category != null)
+                {
+                    if (propDesc.Category.Equals("Indicator") && !IndicatorPropertiesUsed.Contains(propDesc.Name))
+                    {
+                        try
+                        {
+                            PropertyDescriptor tmp = col.Find(propDesc.Name, true);
+                            if (tmp != null)
+                            {
+                                col.Remove(tmp);
+                            }
+                            else { Print("was null"); }
+
+                        }
+                        catch (NullReferenceException ex)
+                        {
+                            Print(ex.ToString());
+                        }
+                        
+                    }
+                }
             }
         }
 
@@ -503,11 +658,15 @@ namespace NinjaTrader.Strategy
             orig.CopyTo(arr, 0);
             PropertyDescriptorCollection col = new PropertyDescriptorCollection(arr);
 
-            ModifyProperties(col);
+            ModifyMoneyManagementProperties(col);
+            ModifyIndicatorProperties(  col);
+
             return col;
 
         }
 
+     
+ 
         public PropertyDescriptorCollection GetProperties()
         {
             return TypeDescriptor.GetProperties(GetType());

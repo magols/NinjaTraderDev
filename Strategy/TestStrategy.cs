@@ -1,5 +1,7 @@
 #region Using declarations
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -19,26 +21,28 @@ namespace NinjaTrader.Strategy
     /// Enter the description of your strategy here
     /// </summary>
     [Description("Enter the description of your strategy here")]
-    public class TestStrategy : BaseForexStrategy
+    public sealed class TestStrategy : BaseForexStrategy
     {
-        #region Variables
-        private int _emaSlowPeriod = 10; // Default setting for EMASlowPeriod
-        private int _emaFastPeriod = 5; // Default setting for EMAFastPeriod
-        private int _rsiPeriod = 10; // Default setting for RSIPeriod
-        private int _adxPeriod = 10; // Default setting for ADXPeriod
-        private int _atrPeriod = 10;
-        private double _atrExclusionMultiplier = 1;
-        private int _adxMin = 20;
-        private int _rsiLower = 45;
-        private int _rsiUpper = 55;
-        private int _crossoverLookbackPeriod = 1;
-
         private AmazingCrossoverIndi _indi;
 
-       
-        #endregion
+        public TestStrategy()
+        {
+            SetupIndicatorProperties();
+            ExitStrategy = ExitType.IntialToBreakevenToTrailing;
+        }
 
- 
+        protected override void SetupIndicatorProperties()
+        {
+            IndicatorPropertiesUsed.Add("EMASlowPeriod");
+            IndicatorPropertiesUsed.Add("EMAFastPeriod");
+            IndicatorPropertiesUsed.Add("RSIPeriod");
+            IndicatorPropertiesUsed.Add("RSILower");
+            IndicatorPropertiesUsed.Add("RSIUpper");
+            IndicatorPropertiesUsed.Add("ADXPeriod");
+            IndicatorPropertiesUsed.Add("ADXMinimum");
+            IndicatorPropertiesUsed.Add("CrossoverLookbackPeriod");
+        }
+
         /// <summary>
         /// This method is used to configure the strategy and is called once before any strategy method is called.
         /// </summary>
@@ -55,6 +59,7 @@ namespace NinjaTrader.Strategy
             }
             CalculateOnBarClose = true;
         }
+
 
 
 
@@ -81,137 +86,9 @@ namespace NinjaTrader.Strategy
             _tradeState = TradeState.InitialStop;
         }
 
-
-
-
-
-
-        #region Properties
-        [Description("Period for the slow EMA")]
-        [GridCategory("Indicator")]
-        public int EMASlowPeriod
+        protected override void MyManagePosition()
         {
-            get { return _emaSlowPeriod; }
-            set { _emaSlowPeriod = Math.Max(1, value); }
+            throw new NotImplementedException();
         }
-
-        [Description("Period for the fast EMA")]
-        [GridCategory("Indicator")]
-        public int EMAFastPeriod
-        {
-            get { return _emaFastPeriod; }
-            set { _emaFastPeriod = Math.Max(1, value); }
-        }
-
-        [Description("Period for RSI, applied to median")]
-        [GridCategory("Indicator")]
-        public int RSIPeriod
-        {
-            get { return _rsiPeriod; }
-            set { _rsiPeriod = Math.Max(1, value); }
-        }
-
-
-
-
-        [Description("Period for RSI lower")]
-        [GridCategory("Indicator")]
-        public int RSILower
-        {
-            get { return _rsiLower; }
-            set { _rsiLower = Math.Max(1, value); }
-        }
-        [Description("Period for RSI upper")]
-        [GridCategory("Indicator")]
-        public int RSIUpper
-        {
-            get { return _rsiUpper; }
-            set { _rsiUpper = Math.Max(1, value); }
-        }
-
-
-        [Description("Period for ADX")]
-        [GridCategory("Indicator")]
-        public int ADXPeriod
-        {
-            get { return _adxPeriod; }
-            set { _adxPeriod = Math.Max(1, value); }
-        }
-        [Description("Minimum for ADX")]
-        [GridCategory("Indicator")]
-        public int ADXMinimum
-        {
-            get { return _adxMin; }
-            set { _adxMin = Math.Max(1, value); }
-        }
-
-        [Description("Period for ATR")]
-        [GridCategory("Indicator")]
-        public int ATRPeriod
-        {
-            get { return _atrPeriod; }
-            set { _atrPeriod = Math.Max(1, value); }
-        }
-
-        [Description("ATR multiplier for exluding trades")]
-        [GridCategory("Indicator")]
-        public double ATRExclusionMultiplier
-        {
-            get { return _atrExclusionMultiplier; }
-            set { _atrExclusionMultiplier = Math.Max(1, value); }
-        }
-
-
-        [Description("Lookback period for crossover convergence")]
-        [GridCategory("Indicator")]
-        public int CrossoverLookbackPeriod
-        {
-            get { return _crossoverLookbackPeriod; }
-            set { _crossoverLookbackPeriod = Math.Max(1, value); }
-        }
-
-
-   
-
-        #endregion
-
-
-        //#region properties MM
-
-        //[Description("Ticks in profit before moving stoploss to breakeven(-ish)")]
-        //[GridCategory("Money management")]
-        //public int ProfitTicksBeforeBreakeven
-        //{
-        //    get { return _mmProfitTicksBeforeBreakeven; }
-        //    set { _mmProfitTicksBeforeBreakeven = Math.Max(1, value); }
-        //}
-
-        //[Description("Initial stoploss in ticks")]
-        //[GridCategory("Money management")]
-        //public int InitialStoploss
-        //{
-        //    get { return _mmInitialSL; }
-        //    set { _mmInitialSL = Math.Max(1, value); }
-        //}
-
-
-        //[Description("Ticksbeyond breakeven to move from initial stop")]
-        //[GridCategory("Money management")]
-        //public int BreakevenTicks
-        //{
-        //    get { return _mmBreakevenTicks; }
-        //    set { _mmBreakevenTicks = Math.Max(1, value); }
-        //}
-
-        //[Description("Trailing stop ticks, when starting to trail from breakeven")]
-        //[GridCategory("Money management")]
-        //public int TrailTicks
-        //{
-        //    get { return _mmTrailTicks; }
-        //    set { _mmTrailTicks = Math.Max(1, value); }
-        //}
-
-        //#endregion
-
     }
 }
