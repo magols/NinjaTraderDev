@@ -520,6 +520,67 @@ namespace NinjaTrader.Strategy
 
         #endregion
 
+        #region calculator related
+        public enum LotSize
+        {
+            Standard = 100000,
+            Mini = 10000,
+            Micro = 1000,
+            Single = 1
+        }
+
+        public class ForexCalculator
+        {
+            public static int GetPositionSize(double accountBalance, double risk, int stoplossTicks, double pipValue)
+            {
+                double res = (accountBalance * risk) / (stoplossTicks * pipValue);
+
+                return Convert.ToInt32(Math.Floor(res));
+            }
+
+            public static double GetPipValue(string instrument, LotSize lot, double tickSize, double askPrice)
+            {
+                if (instrument.EndsWith("USD"))
+                    return tickSize * (double)lot;
+
+                if (instrument.StartsWith("USD"))
+                    return tickSize * (double)lot / askPrice;
+
+
+                RelatedPairs.RelatedPair relPair = RelatedPairs.GetRelatedPairs()[instrument];
+                if (relPair.Instrument.StartsWith("USD"))
+                {
+                    return tickSize * (double)lot / relPair.Rate;
+                }
+
+
+                throw new Exception("GetPipValue: The relative pair instrument or rate could not be determined (probably GBPUSD or other where USD is quote currency");
+
+            }
+        }
+
+        public class RelatedPairs : Dictionary<string, RelatedPairs.RelatedPair>
+        {
+            public class RelatedPair
+            {
+                public string Instrument;
+                public double Rate;
+            }
+
+            public static RelatedPairs GetRelatedPairs()
+            {
+                return new RelatedPairs
+                                   {
+                                       {"AUDJPY", new RelatedPair {Instrument = "USDJPY", Rate = 79.88}},
+                                         {"AUDCAD", new RelatedPair {Instrument = "USDCAD", Rate = 0.99559}},
+                             //          {"EURGBP", new RelatedPair {Instrument = "GBPUSD", Rate = 0.8104}},
+                             //          {"GBPCHF", new RelatedPair {Instrument = "EURUSD", Rate = 1.3085}}
+                                   };
+            }
+        }
+
+
+        #endregion
 
         #region Custom Property Manipulation
 
@@ -711,5 +772,9 @@ namespace NinjaTrader.Strategy
         }
 
         #endregion
+
+
+     
+ 
     }
 }
