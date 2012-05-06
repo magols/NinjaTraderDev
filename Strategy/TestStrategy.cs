@@ -76,12 +76,12 @@ namespace NinjaTrader.Strategy
             if (_indi.Signal == 1)
             {
                 _lossLevel = Close[0] - risk;
-                _entry = EnterLong(ComputeQty(risk));
+                _entry = EnterLong(ComputeQty(risk), GetType().Name + " long" );
             }
             else if (_indi.Signal == -1)
             {
                 _lossLevel = Close[0] + risk;
-                _entry = EnterShort(ComputeQty(risk));
+                _entry = EnterShort(ComputeQty(risk), GetType().Name + " short");
             }
             _tradeState = TradeState.InitialStop;
         }

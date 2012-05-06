@@ -154,10 +154,13 @@ namespace NinjaTrader.Strategy
                 IOrder exit = execution.Order;
                 if (_entry.OrderAction == OrderAction.Buy)
                     diff = exit.AvgFillPrice - _entry.AvgFillPrice;
-                else if (_entry.OrderAction == OrderAction.SellShort)
+                else if (_entry.OrderAction == OrderAction.Sell)
                     diff = _entry.AvgFillPrice - exit.AvgFillPrice;
 
-                double profit = ((diff * this.PointValue)) * _entry.Quantity;
+                //   double profit = ((diff * this.PointValue)) * _entry.Quantity;
+                   double profit = diff * _entry.Quantity;
+
+
                 _equity += profit;
 
                 //				P("Profit=" + profit.ToString("C2") + ", Equity=" + _equity.ToString("C2"));
@@ -541,6 +544,33 @@ namespace NinjaTrader.Strategy
                 //    break;
 
                 case ExitType.Custom:
+                    foreach (PropertyDescriptor propDesc in col)
+                    {
+
+                        if (propDesc != null)
+                        {
+                            if (propDesc.Category != null)
+                            {
+                                if (propDesc.Category.Contains("management") && propDesc.Name != "ExitStrategy")
+                                {
+                                    try
+                                    {
+                                        PropertyDescriptor tmp = col.Find(propDesc.Name, true);
+                                        if (tmp != null)
+                                        {
+                                            col.Remove(tmp);
+                                        }
+                                        else { Print("was null"); }
+                                    }
+                                    catch (NullReferenceException ex)
+                                    {
+                                        Print(ex.ToString());
+                                    }
+                                }
+                            }
+
+                        }
+                    }
                     break;
                 
 
@@ -549,26 +579,29 @@ namespace NinjaTrader.Strategy
             foreach (PropertyDescriptor propDesc in col)
             {
 
-                if (propDesc != null && propDesc.Category != null)
-                {          
-
-                    if (propDesc.Category.Contains("management") &&
-                        !propertiesToUse.Contains(propDesc.DisplayName))
+                if (propDesc != null)
+                {
+                    if (propDesc.Category != null)
                     {
-                        try
+                        if (propDesc.Category.Contains("management") &&
+                       !propertiesToUse.Contains(propDesc.DisplayName))
                         {
-                            PropertyDescriptor tmp = col.Find(propDesc.Name, true);
-                            if (tmp != null)
+                            try
                             {
-                                 col.Remove(tmp);
+                                PropertyDescriptor tmp = col.Find(propDesc.Name, true);
+                                if (tmp != null)
+                                {
+                                    col.Remove(tmp);
+                                }
+                                else { Print("was null"); }
                             }
-                            else { Print("was null"); }
-                        }
-                        catch (NullReferenceException ex)
-                        {
-                            Print(ex.ToString());
+                            catch (NullReferenceException ex)
+                            {
+                                Print(ex.ToString());
+                            }
                         }
                     }
+                   
                 }
             }
         }
