@@ -441,6 +441,7 @@
     <Compile Include="Strategy\GekkoStochastics.cs" />
     <Compile Include="Strategy\StrategyFramework.cs" />
     <Compile Include="Strategy\SuperTrendDemo.cs" />
+    <Compile Include="Strategy\TestRandomWithATRTrail.cs" />
     <Compile Include="Strategy\TestStrategy.cs">
       <SubType>Code</SubType>
     </Compile>

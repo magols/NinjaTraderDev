@@ -64,7 +64,7 @@ namespace NinjaTrader.Strategy
         {
             Custom,
             IntialToBreakevenToTrailing,
-            //TrailingATR
+            TrailingATR
         }
 
         #endregion
@@ -104,8 +104,7 @@ namespace NinjaTrader.Strategy
         {
             if (CurrentBar <= BarsRequired) return;
 
-          
-
+         
             MyOnBarUpdate();
 
             if (StillHaveMoney)
@@ -175,9 +174,11 @@ namespace NinjaTrader.Strategy
                     ManageTradeByBreakevenTrail();
                     break;
 
-                //case ExitType.TrailingATR:
-                //    ManageTradeByTrailingATR();
-                //    break;
+                case ExitType.TrailingATR:
+                    ManageTradeByTrailingATR();
+                    break;
+
+                    // if type is set to Custom
                 default: 
                     MyManagePosition();
                     break;
@@ -234,29 +235,32 @@ namespace NinjaTrader.Strategy
 
 
         #region methods MM
-        //private void ManageTradeByTrailingATR()
-        //{
-        //    double risk = _risk;
-        //    if (IsLong)
-        //    {
-        //        if (High[0] - risk > _lossLevel)
-        //        {
-        //            _lossLevel = High[0] - risk;
-        //            //					P("LONG: changing stop loss level to " + _lossLevel.ToString("N2"));
-        //            SetStopLoss(CalculationMode.Price, _lossLevel);
-        //        }
-        //    }
-        //    else if (IsShort)
-        //    {
-        //        if (Low[0] + risk < _lossLevel)
-        //        {
-        //            _lossLevel = Low[0] + risk;
-        //            //					P("SHORT: changing stop loss level to " + _lossLevel.ToString("N2"));
-        //            SetStopLoss(CalculationMode.Price, _lossLevel);
-        //        }
-        //    }
-        //    DrawLossLevel();
-        //}
+
+        protected void ManageTradeByTrailingATR()
+        {
+             
+            double risk = EMA(ATR(MMAtrPeriod), MMAtrEMAPeriod)[0] * MMAtrMultiplier;
+
+            if (IsLong)
+            {
+                if (High[0] - risk > _lossLevel)
+                {
+                    _lossLevel = High[0] - risk;
+                    //					P("LONG: changing stop loss level to " + _lossLevel.ToString("N2"));
+                    SetStopLoss(CalculationMode.Price, _lossLevel);
+                }
+            }
+            else if (IsShort)
+            {
+                if (Low[0] + risk < _lossLevel)
+                {
+                    _lossLevel = Low[0] + risk;
+                    //					P("SHORT: changing stop loss level to " + _lossLevel.ToString("N2"));
+                    SetStopLoss(CalculationMode.Price, _lossLevel);
+                }
+            }
+            DrawLossLevel();
+        }
 
 
         protected void ManageTradeByBreakevenTrail()
@@ -347,6 +351,7 @@ namespace NinjaTrader.Strategy
         // atr multiplier trail stop
         protected double _mmAtrMultiplier = 3.0;
         protected int _mmAtrPeriod = 10;
+        protected int _mmAtrEMAperiod = 5;
         #endregion
 
         #region Money management properties
@@ -419,6 +424,13 @@ namespace NinjaTrader.Strategy
             set { _mmAtrMultiplier = Math.Max(1, value); }
         }
 
+        [Description("Multiplier for trailing ATR")]
+        [GridCategory("Money management")]
+        public int MMAtrEMAPeriod
+        {
+            get { return _mmAtrEMAperiod; }
+            set { _mmAtrEMAperiod = Math.Max(1, value); }
+        }
         #endregion
 
 
@@ -598,11 +610,12 @@ namespace NinjaTrader.Strategy
                     propertiesToUse.Add("TrailTicks");
                     break;
 
-                //case ExitType.TrailingATR:
-                //    propertiesToUse.Add("MMAtrMultiplier");
-                //    propertiesToUse.Add("MMAtrPeriod");
-                //    propertiesToUse.Add("PercentRisk");
-                //    break;
+                case ExitType.TrailingATR:
+                    propertiesToUse.Add("MMAtrMultiplier");
+                    propertiesToUse.Add("MMAtrPeriod");
+                    propertiesToUse.Add("MMAtrEMA");
+              //      propertiesToUse.Add("PercentRisk");
+                    break;
 
                 case ExitType.Custom:
                     foreach (PropertyDescriptor propDesc in col)
