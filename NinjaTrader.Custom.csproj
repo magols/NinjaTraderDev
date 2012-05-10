@@ -431,14 +431,12 @@
     </Compile>
     <Compile Include="Strategy\AmazingCrossoverStrat.cs" />
     <Compile Include="Strategy\AmazingCrossoverTrailStrat.cs" />
+    <Compile Include="Strategy\AsianAssault.cs" />
     <Compile Include="Strategy\BaseForexStrategy.cs" />
-    <Compile Include="Strategy\BopaStrategy.cs" />
     <Compile Include="Strategy\CompileMeStrat.cs" />
     <Compile Include="Strategy\EMAtriple.cs" />
     <Compile Include="Strategy\GekkoAUDUSD0050Strat.cs" />
-    <Compile Include="Strategy\GekkoEMACrossoverStrat.cs" />
-    <Compile Include="Strategy\GekkoPSARstrat.cs" />
-    <Compile Include="Strategy\GekkoStochastics.cs" />
+    <Compile Include="Strategy\Luxor.cs" />
     <Compile Include="Strategy\StrategyFramework.cs" />
     <Compile Include="Strategy\SuperTrendDemo.cs" />
     <Compile Include="Strategy\TestRandomWithATRTrail.cs" />
@@ -446,7 +444,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Strategy\UserDefinedMethods.cs" />
-    <Compile Include="Strategy\vtRandom.cs" />
     <Compile Include="Type\%40BarsTypes.cs" />
     <Compile Include="Type\%40ChartStyles.cs" />
     <Compile Include="Type\%40DefaultFillType.cs" />
@@ -517,6 +514,9 @@
     <Compile Include="Type\%40MaxProbability.cs" />
     <Compile Include="Type\%40TextImportType.cs" />
     <Compile Include="Type\%40MaxSharpeRatio.cs" />
+    <Compile Include="Type\OptTypeTimeInMarket.cs" />
+    <Compile Include="Type\ProfitToMaxDrawdown.cs" />
+    <Compile Include="Type\RINA.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
