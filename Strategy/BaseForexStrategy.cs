@@ -64,7 +64,8 @@ namespace NinjaTrader.Strategy
         {
             Custom,
             IntialToBreakevenToTrailing,
-            TrailingATR
+            TrailingATR,
+            Simple
         }
 
         #endregion
@@ -111,7 +112,7 @@ namespace NinjaTrader.Strategy
             {
                 if (IsFlat)
                 {
-                    SetStopLoss(CalculationMode.Ticks, _mmInitialSL);
+                 SetStopLoss(CalculationMode.Ticks, _mmInitialSL);
                     LookForTrade();
                 }
                 else
@@ -178,6 +179,9 @@ namespace NinjaTrader.Strategy
                     ManageTradeByTrailingATR();
                     break;
 
+                case ExitType.Simple:
+                    ManageTradeBySimple();
+                    break;
                     // if type is set to Custom
                 default: 
                     MyManagePosition();
@@ -235,6 +239,14 @@ namespace NinjaTrader.Strategy
 
 
         #region methods MM
+        protected void ManageTradeBySimple()
+        {
+
+            SetStopLoss(CalculationMode.Ticks, InitialStoploss);
+            SetProfitTarget(CalculationMode.Ticks, ProfitTicks);
+           
+             DrawLossLevel();
+        }
 
         protected void ManageTradeByTrailingATR()
         {
@@ -247,7 +259,7 @@ namespace NinjaTrader.Strategy
                 {
                     _lossLevel = High[0] - risk;
                     //					P("LONG: changing stop loss level to " + _lossLevel.ToString("N2"));
-                    SetStopLoss(CalculationMode.Price, _lossLevel);
+                    SetStopLoss("long", CalculationMode.Price, _lossLevel, false);
                 }
             }
             else if (IsShort)
@@ -256,7 +268,7 @@ namespace NinjaTrader.Strategy
                 {
                     _lossLevel = Low[0] + risk;
                     //					P("SHORT: changing stop loss level to " + _lossLevel.ToString("N2"));
-                    SetStopLoss(CalculationMode.Price, _lossLevel);
+                    SetStopLoss("short", CalculationMode.Price, _lossLevel, false);
                 }
             }
             DrawLossLevel();
@@ -346,7 +358,7 @@ namespace NinjaTrader.Strategy
         protected int _mmBreakevenTicks = 2;
         protected int _mmTrailTicks = 25;
 
-
+        protected int _mmTakeProfitTicks = 30;
 
         // atr multiplier trail stop
         protected double _mmAtrMultiplier = 3.0;
@@ -389,6 +401,13 @@ namespace NinjaTrader.Strategy
             set { _mmInitialSL = Math.Max(1, value); }
         }
 
+        [Description("Take profit at ticks")]
+        [GridCategory("Money management")]
+        public int ProfitTicks
+        {
+            get { return _mmTakeProfitTicks; }
+            set { _mmTakeProfitTicks = Math.Max(1, value); }
+        }
 
         [Description("Ticksbeyond breakeven to move from initial stop")]
         
@@ -598,6 +617,10 @@ namespace NinjaTrader.Strategy
 
         private void ModifyMoneyManagementProperties(PropertyDescriptorCollection col)
         {
+
+
+
+
             List<string> propertiesToUse = new List<string>();
             propertiesToUse.Add("ExitStrategy");
 
@@ -617,7 +640,13 @@ namespace NinjaTrader.Strategy
               //      propertiesToUse.Add("PercentRisk");
                     break;
 
-                case ExitType.Custom:
+               case ExitType.Simple:
+                    propertiesToUse.Add("InitialStoploss");
+                    propertiesToUse.Add("ProfitTicks");
+               
+                    break;
+
+               case ExitType.Custom:
                     foreach (PropertyDescriptor propDesc in col)
                     {
 

@@ -63,13 +63,14 @@ namespace NinjaTrader.Strategy
                 {
                     ExitShort();
                     EnterLongStop(High[0], "long");
+                    _lossLevel = High[0] - InitialStoploss*TickSize;
 
                 }
                 else if (CrossBelow(SMA(FastSMA), SMA(SlowSMA), 1))
                 {
                     ExitLong();
                     EnterShortStop(Low[0], "short");
-
+                    _lossLevel = Low[0] + InitialStoploss * TickSize;
                 }
             }
         }
