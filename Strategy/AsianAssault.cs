@@ -42,13 +42,15 @@ namespace NinjaTrader.Strategy
         {
           //  TraceOrders = true;
 
-            _exitType = ExitType.IntialToBreakevenToTrailing;
+            _exitType = ExitType.TrailingATR;
 
             _indiPrior = PriorDayOHLC();
             _indiPrior.ShowClose = false;
             _indiPrior.ShowOpen = false;
             Add(_indiPrior);
 
+
+            Add(EMAofATR(MMAtrMultiplier, MMAtrEMAPeriod));
       //      SetTrailStop(CalculationMode.Ticks, 15);
             //SetStopLoss(CalculationMode.Ticks, 20);
             //SetProfitTarget(CalculationMode.Ticks, 30);
@@ -105,11 +107,18 @@ namespace NinjaTrader.Strategy
             // go long?
             if (Close[0] > priorLow && Close[0] <= priorLow + (TickSize * _maxTicksToTarget) && Falling(Close))
             {
-                
                  _latestSubmittedOrder = EnterLongLimit(0, true, DefaultQuantity, priorLow, "long");
                 _tradeState = TradeState.InitialStop;
-           //      SetStopLoss("", CalculationMode.Price, priorLow - TickSize * _mmInitialSL, true);
-                 _lossLevel = priorLow - TickSize*_mmInitialSL;
+
+                if (_exitType == ExitType.TrailingATR)
+                {
+                    _lossLevel = priorLow - EMA(ATR(MMAtrPeriod), MMAtrEMAPeriod)[0] * MMAtrMultiplier;
+                    SetStopLoss("long", CalculationMode.Price, _lossLevel, true);
+                }
+                else
+                {
+                    _lossLevel = priorLow - TickSize * _mmInitialSL;
+                }
                 _orderDates.Add(Time[0].ToShortDateString());
                 
             }
@@ -117,12 +126,19 @@ namespace NinjaTrader.Strategy
             // go short?
             if (Close[0] < priorHigh && Close[0] >= priorHigh - (TickSize * _maxTicksToTarget) && Rising(Close))
             {
-
-                
                 _latestSubmittedOrder = EnterShortLimit(0, true, DefaultQuantity, priorHigh, "short");
                 _tradeState = TradeState.InitialStop;
-           //     SetStopLoss("", CalculationMode.Price, priorHigh + TickSize * _mmInitialSL, true);
-                _lossLevel = priorHigh + TickSize*_mmInitialSL;
+
+                if (_exitType == ExitType.TrailingATR)
+                {
+                    _lossLevel = priorHigh + EMA(ATR(MMAtrPeriod), MMAtrEMAPeriod)[0] * MMAtrMultiplier;
+                    SetStopLoss("short", CalculationMode.Price, _lossLevel, true);
+                }
+                else
+                {
+                     _lossLevel = priorHigh + TickSize*_mmInitialSL;
+                }
+               
                 _orderDates.Add(Time[0].ToShortDateString());
             
             }

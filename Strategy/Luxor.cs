@@ -64,6 +64,7 @@ namespace NinjaTrader.Strategy
                     ExitShort();
                     EnterLongStop(High[0], "long");
                     _lossLevel = High[0] - InitialStoploss*TickSize;
+                    BackColor = Color.LightGreen;
 
                 }
                 else if (CrossBelow(SMA(FastSMA), SMA(SlowSMA), 1))
@@ -71,6 +72,7 @@ namespace NinjaTrader.Strategy
                     ExitLong();
                     EnterShortStop(Low[0], "short");
                     _lossLevel = Low[0] + InitialStoploss * TickSize;
+                    BackColor = Color.Pink;
                 }
             }
         }

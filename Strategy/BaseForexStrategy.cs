@@ -255,24 +255,62 @@ namespace NinjaTrader.Strategy
 
             if (IsLong)
             {
-                if (High[0] - risk > _lossLevel)
+                switch (_tradeState)
                 {
-                    _lossLevel = High[0] - risk;
-                    //					P("LONG: changing stop loss level to " + _lossLevel.ToString("N2"));
-                    SetStopLoss("long", CalculationMode.Price, _lossLevel, false);
+                    case TradeState.InitialStop:
+                        // switch to breakeven if possible and start trailing
+                        if (Close[0] > Position.AvgPrice + (TickSize * ProfitTicksBeforeBreakeven))
+                        {
+                            _lossLevel = Position.AvgPrice + (TickSize*BreakevenTicks);
+                            SetStopLoss("long", CalculationMode.Price, _lossLevel, true);
+                            _tradeState = TradeState.Trailing;
+                        }
+                        break;
+
+                    case TradeState.Trailing:
+                        if (Low[0] - risk > _lossLevel)
+                        {
+                            _lossLevel = Low[0] - risk;
+                            SetStopLoss("long", CalculationMode.Price, _lossLevel, true);
+                        }
+                        break;
                 }
+
             }
             else if (IsShort)
             {
-                if (Low[0] + risk < _lossLevel)
+                switch (_tradeState)
                 {
-                    _lossLevel = Low[0] + risk;
-                    //					P("SHORT: changing stop loss level to " + _lossLevel.ToString("N2"));
-                    SetStopLoss("short", CalculationMode.Price, _lossLevel, false);
+                    case TradeState.InitialStop:
+                        // switch to breakeven if possible and start trailing
+                        if (Close[0] < Position.AvgPrice - (TickSize * ProfitTicksBeforeBreakeven))
+                        {
+                            _lossLevel = Position.AvgPrice - (TickSize * BreakevenTicks);
+                            SetStopLoss("short", CalculationMode.Price, _lossLevel, true);
+                            _tradeState = TradeState.Trailing;
+                        }
+                        break;
+
+                    case TradeState.Trailing:
+                        if (High[0] + risk < _lossLevel)
+                        {
+                            _lossLevel = High[0] + risk;
+                            SetStopLoss("short", CalculationMode.Price, _lossLevel, true);
+                        }
+                        break;
                 }
             }
             DrawLossLevel();
         }
+
+
+
+                    //        propertiesToUse.Add("MMAtrMultiplier");
+                    //propertiesToUse.Add("MMAtrPeriod");
+                    //propertiesToUse.Add("MMAtrEMA");
+                    //propertiesToUse.Add("BreakevenTicks");
+                    //propertiesToUse.Add("InitialStoploss");
+                    //propertiesToUse.Add("ProfitTicksBeforeBreakeven");
 
 
         protected void ManageTradeByBreakevenTrail()
@@ -637,7 +675,8 @@ namespace NinjaTrader.Strategy
                     propertiesToUse.Add("MMAtrMultiplier");
                     propertiesToUse.Add("MMAtrPeriod");
                     propertiesToUse.Add("MMAtrEMA");
-              //      propertiesToUse.Add("PercentRisk");
+                    propertiesToUse.Add("BreakevenTicks");
+                    propertiesToUse.Add("ProfitTicksBeforeBreakeven");
                     break;
 
                case ExitType.Simple:

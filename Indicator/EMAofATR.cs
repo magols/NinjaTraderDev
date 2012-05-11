@@ -22,20 +22,25 @@ namespace NinjaTrader.Indicator
 		#region Variables
 		// Wizard generated variables
 			private int period = 10; // Default setting for Period
+		private double multiplier = 3;
 		// User defined variables (add any user defined variables below)
 		#endregion
 
 		private ATR _atr = null;
-		private EMA _ema = null;
+		private SMA _ema = null;
 		
 		/// <summary>
 		/// This method is used to configure the indicator and is called once before any bar data is loaded.
 		/// </summary>
 		protected override void Initialize()
 		{
-			Add(new Plot(Color.FromKnownColor(KnownColor.Green), PlotStyle.Line, "ATRPlot"));
-			Add(new Plot(Color.FromKnownColor(KnownColor.Orange), PlotStyle.Line, "EMAPlot"));
-			Overlay				= false;
+			Add(new Plot(Color.FromKnownColor(KnownColor.Red), PlotStyle.Line, "ATRPlotHigh"));
+			Add(new Plot(Color.FromKnownColor(KnownColor.Orange), PlotStyle.Line, "EMAPlotHigh"));
+
+			Add(new Plot(Color.FromKnownColor(KnownColor.Red), PlotStyle.Line, "ATRPlotLow"));
+			Add(new Plot(Color.FromKnownColor(KnownColor.Orange), PlotStyle.Line, "EMAPlotLow"));
+
+			Overlay				= true;
 		}
 
 		/// <summary>
@@ -50,31 +55,47 @@ namespace NinjaTrader.Indicator
 				_atr  = ATR(period);
 
 			if (_ema == null) 
-				_ema = EMA(_atr, period);
+				_ema = SMA(_atr, period);
 
 			if (_atr == null & _ema == null) 
 				return;
-			
-			
-			// Use this method for calculating your indicator values. Assign a value to each
-			// plot below by replacing 'Close[0]' with your own formula.
-			ATRPlot.Set(_atr[0]);
-			EMAPlot.Set(_ema[0]);
+
+			ATRPlotHigh.Set(High[0] + _atr[0] * multiplier);
+            ATRPlotLow.Set(Low[0] - _atr[0] * multiplier);
+
+
+            EMAPlotHigh.Set(High[0] + _ema[0] * multiplier);
+            EMAPlotLow.Set(Low[0] - _ema[0] * multiplier);
+
 		}
 
 		#region Properties
 		[Browsable(false)]	// this line prevents the data series from being displayed in the indicator properties dialog, do not remove
 		[XmlIgnore()]		// this line ensures that the indicator can be saved/recovered as part of a chart template, do not remove
-		public DataSeries ATRPlot
+		public DataSeries ATRPlotHigh
 		{
 			get { return Values[0]; }
 		}
 
 		[Browsable(false)]	// this line prevents the data series from being displayed in the indicator properties dialog, do not remove
 		[XmlIgnore()]		// this line ensures that the indicator can be saved/recovered as part of a chart template, do not remove
-		public DataSeries EMAPlot
+		public DataSeries EMAPlotHigh
 		{
 			get { return Values[1]; }
+		}
+
+		[Browsable(false)]	// this line prevents the data series from being displayed in the indicator properties dialog, do not remove
+		[XmlIgnore()]		// this line ensures that the indicator can be saved/recovered as part of a chart template, do not remove
+		public DataSeries ATRPlotLow
+		{
+			get { return Values[2]; }
+		}
+
+		[Browsable(false)]	// this line prevents the data series from being displayed in the indicator properties dialog, do not remove
+		[XmlIgnore()]		// this line ensures that the indicator can be saved/recovered as part of a chart template, do not remove
+		public DataSeries EMAPlotLow
+		{
+			get { return Values[3]; }
 		}
 
 		[Description("Perio of atr and ema")]
@@ -84,6 +105,15 @@ namespace NinjaTrader.Indicator
 			get { return period; }
 			set { period = Math.Max(1, value); }
 		}
+
+		[Description("Multiplier of atr")]
+		[GridCategory("Parameters")]
+		public double Multiplier
+		{
+			get { return multiplier; }
+			set { multiplier = Math.Max(1, value); }
+		}
+
 		#endregion
 	}
 }
@@ -102,30 +132,32 @@ namespace NinjaTrader.Indicator
 		/// Enter the description of your new custom indicator here
 		/// </summary>
 		/// <returns></returns>
-		public EMAofATR EMAofATR(int period)
+		public EMAofATR EMAofATR(double multiplier, int period)
 		{
-			return EMAofATR(Input, period);
+			return EMAofATR(Input, multiplier, period);
 		}
 
 		/// <summary>
 		/// Enter the description of your new custom indicator here
 		/// </summary>
 		/// <returns></returns>
-		public EMAofATR EMAofATR(Data.IDataSeries input, int period)
+		public EMAofATR EMAofATR(Data.IDataSeries input, double multiplier, int period)
 		{
 			if (cacheEMAofATR != null)
 				for (int idx = 0; idx < cacheEMAofATR.Length; idx++)
-					if (cacheEMAofATR[idx].Period == period && cacheEMAofATR[idx].EqualsInput(input))
+					if (Math.Abs(cacheEMAofATR[idx].Multiplier - multiplier) <= double.Epsilon && cacheEMAofATR[idx].Period == period && cacheEMAofATR[idx].EqualsInput(input))
 						return cacheEMAofATR[idx];
 
 			lock (checkEMAofATR)
 			{
+				checkEMAofATR.Multiplier = multiplier;
+				multiplier = checkEMAofATR.Multiplier;
 				checkEMAofATR.Period = period;
 				period = checkEMAofATR.Period;
 
 				if (cacheEMAofATR != null)
 					for (int idx = 0; idx < cacheEMAofATR.Length; idx++)
-						if (cacheEMAofATR[idx].Period == period && cacheEMAofATR[idx].EqualsInput(input))
+						if (Math.Abs(cacheEMAofATR[idx].Multiplier - multiplier) <= double.Epsilon && cacheEMAofATR[idx].Period == period && cacheEMAofATR[idx].EqualsInput(input))
 							return cacheEMAofATR[idx];
 
 				EMAofATR indicator = new EMAofATR();
@@ -136,6 +168,7 @@ namespace NinjaTrader.Indicator
 				indicator.MaximumBarsLookBack = MaximumBarsLookBack;
 #endif
 				indicator.Input = input;
+				indicator.Multiplier = multiplier;
 				indicator.Period = period;
 				Indicators.Add(indicator);
 				indicator.SetUp();
@@ -161,18 +194,18 @@ namespace NinjaTrader.MarketAnalyzer
 		/// </summary>
 		/// <returns></returns>
 		[Gui.Design.WizardCondition("Indicator")]
-		public Indicator.EMAofATR EMAofATR(int period)
+		public Indicator.EMAofATR EMAofATR(double multiplier, int period)
 		{
-			return _indicator.EMAofATR(Input, period);
+			return _indicator.EMAofATR(Input, multiplier, period);
 		}
 
 		/// <summary>
 		/// Enter the description of your new custom indicator here
 		/// </summary>
 		/// <returns></returns>
-		public Indicator.EMAofATR EMAofATR(Data.IDataSeries input, int period)
+		public Indicator.EMAofATR EMAofATR(Data.IDataSeries input, double multiplier, int period)
 		{
-			return _indicator.EMAofATR(input, period);
+			return _indicator.EMAofATR(input, multiplier, period);
 		}
 	}
 }
@@ -187,21 +220,21 @@ namespace NinjaTrader.Strategy
 		/// </summary>
 		/// <returns></returns>
 		[Gui.Design.WizardCondition("Indicator")]
-		public Indicator.EMAofATR EMAofATR(int period)
+		public Indicator.EMAofATR EMAofATR(double multiplier, int period)
 		{
-			return _indicator.EMAofATR(Input, period);
+			return _indicator.EMAofATR(Input, multiplier, period);
 		}
 
 		/// <summary>
 		/// Enter the description of your new custom indicator here
 		/// </summary>
 		/// <returns></returns>
-		public Indicator.EMAofATR EMAofATR(Data.IDataSeries input, int period)
+		public Indicator.EMAofATR EMAofATR(Data.IDataSeries input, double multiplier, int period)
 		{
 			if (InInitialize && input == null)
 				throw new ArgumentException("You only can access an indicator with the default input/bar series from within the 'Initialize()' method");
 
-			return _indicator.EMAofATR(input, period);
+			return _indicator.EMAofATR(input, multiplier, period);
 		}
 	}
 }
