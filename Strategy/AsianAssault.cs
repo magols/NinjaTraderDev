@@ -24,13 +24,7 @@ namespace NinjaTrader.Strategy
     {
         #region Variables
 
-
-        private int _timeStartHour = 2;
-        private int _timeStartMinute = 0;
-        private int _timeStopHour = 4;
-        private int _timeStopMinute = 59;
-
-
+ 
         private int _maxTicksToTarget = 10;
 
         private PriorDayOHLC _indiPrior;
@@ -60,6 +54,10 @@ namespace NinjaTrader.Strategy
         protected override void SetupIndicatorProperties()
         {
 
+            PropertiesExposed.Add("TradeableTimeStartHour");
+          
+            PropertiesExposed.Add("TradeableTimeEndHour");
+          
         }
 
  
@@ -68,7 +66,7 @@ namespace NinjaTrader.Strategy
     
             if (_latestSubmittedOrder != null)
             {
-                if (Time[0].Hour > _timeStopHour)
+                if (Time[0].Hour > _tradeableTimeEndHour)
                 {
                     CancelOrder(_latestSubmittedOrder);
                     _latestSubmittedOrder = null;
@@ -162,12 +160,12 @@ namespace NinjaTrader.Strategy
                 var s = "";
             }
 
-            if ((Time[0].Hour < TimeStartHour) )
+            if ((Time[0].Hour < _tradeableTimeStartHour) )
             {
                 return false;
             }
 
-            if ((Time[0].Hour >= TimeStopHour))
+            if ((Time[0].Hour >= _tradeableTimeEndHour))
             {
                 return false;
             }
@@ -191,20 +189,6 @@ namespace NinjaTrader.Strategy
 
         #region parameters
 
-        [Description("")]
-        [GridCategory("Parameters")]
-        public int TimeStartHour
-        {
-            get { return _timeStartHour; }
-            set { _timeStartHour = Math.Max(1, value); }
-        }
-        [Description("")]
-        [GridCategory("Parameters")]
-        public int TimeStopHour
-        {
-            get { return _timeStopHour; }
-            set { _timeStopHour = Math.Max(1, value); }
-        }
         #endregion
     }
 }

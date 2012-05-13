@@ -19,7 +19,7 @@ namespace NinjaTrader.Strategy
     public abstract  class BaseForexStrategy : Strategy, ICustomTypeDescriptor
     {
         protected TradeState _tradeState = TradeState.InitialStop;
-        protected List<string> IndicatorPropertiesUsed = new List<string>();
+        protected List<string> PropertiesExposed = new List<string>();
 
         #region Account variables
         private int _counter = 1; // Default for Counter
@@ -94,7 +94,12 @@ namespace NinjaTrader.Strategy
 
         #endregion
 
-        
+
+        public BaseForexStrategy()
+        {
+            SetupIndicatorProperties();
+        }
+
         #region methods
 
 
@@ -126,7 +131,7 @@ namespace NinjaTrader.Strategy
 
         protected override void Initialize()
         {
-
+            
            
             //    ClearOutputWindow();
             
@@ -491,10 +496,29 @@ namespace NinjaTrader.Strategy
         #endregion
 
 
-        #region Indicator Properties
+        #region base Properties
+
+        protected int _smaSlowPeriod = 10; // Default setting for EMASlowPeriod
+        [Description("Period for the slow SMA")]
+        [GridCategory("ParametersBase")]
+        public int SMASlowPeriod
+        {
+            get { return _emaSlowPeriod; }
+            set { _emaSlowPeriod = Math.Max(1, value); }
+        }
+
+        protected int _smaFastPeriod = 5; // Default setting for EMAFastPeriod
+        [Description("Period for the fast SMA")]
+        [GridCategory("ParametersBase")]
+        public int SMAFastPeriod
+        {
+            get { return _emaFastPeriod; }
+            set { _emaFastPeriod = Math.Max(1, value); }
+        }
+
         protected int _emaSlowPeriod = 10; // Default setting for EMASlowPeriod
         [Description("Period for the slow EMA")]
-        [GridCategory("Indicator")]
+        [GridCategory("ParametersBase")]
         public int EMASlowPeriod
         {
             get { return _emaSlowPeriod; }
@@ -503,7 +527,7 @@ namespace NinjaTrader.Strategy
 
         protected int _emaFastPeriod = 5; // Default setting for EMAFastPeriod
         [Description("Period for the fast EMA")]
-        [GridCategory("Indicator")]
+        [GridCategory("ParametersBase")]
         public int EMAFastPeriod
         {
             get { return _emaFastPeriod; }
@@ -512,7 +536,7 @@ namespace NinjaTrader.Strategy
 
         protected int _rsiPeriod = 10; // Default setting for RSIPeriod
         [Description("Period for RSI")]
-        [GridCategory("Indicator")]
+        [GridCategory("ParametersBase")]
         public int RSIPeriod
         {
             get { return _rsiPeriod; }
@@ -523,7 +547,7 @@ namespace NinjaTrader.Strategy
 
         protected int _rsiLower = 45;
         [Description("Period for RSI lower")]
-        [GridCategory("Indicator")]
+        [GridCategory("ParametersBase")]
         public int RSILower
         {
             get { return _rsiLower; }
@@ -532,7 +556,7 @@ namespace NinjaTrader.Strategy
 
         protected int _rsiUpper = 55;
         [Description("Period for RSI upper")]
-        [GridCategory("Indicator")]
+        [GridCategory("ParametersBase")]
         public int RSIUpper
         {
             get { return _rsiUpper; }
@@ -541,7 +565,7 @@ namespace NinjaTrader.Strategy
 
         protected int _adxPeriod = 10; // Default setting for ADXPeriod
         [Description("Period for ADX")]
-        [GridCategory("Indicator")]
+        [GridCategory("ParametersBase")]
         public int ADXPeriod
         {
             get { return _adxPeriod; }
@@ -550,7 +574,7 @@ namespace NinjaTrader.Strategy
 
         protected int _adxMin = 20;
         [Description("Minimum for ADX")]
-        [GridCategory("Indicator")]
+        [GridCategory("ParametersBase")]
         public int ADXMinimum
         {
             get { return _adxMin; }
@@ -559,7 +583,7 @@ namespace NinjaTrader.Strategy
 
         protected int _atrPeriod = 10;
         [Description("Period for ATR")]
-        [GridCategory("Indicator")]
+        [GridCategory("ParametersBase")]
         public int ATRPeriod
         {
             get { return _atrPeriod; }
@@ -568,7 +592,7 @@ namespace NinjaTrader.Strategy
 
         protected double _atrExclusionMultiplier = 1;
         [Description("ATR multiplier for exluding trades")]
-        [GridCategory("Indicator")]
+        [GridCategory("ParametersBase")]
         public double ATRExclusionMultiplier
         {
             get { return _atrExclusionMultiplier; }
@@ -577,7 +601,7 @@ namespace NinjaTrader.Strategy
 
         protected int _crossoverLookbackPeriod = 1;
         [Description("Lookback period for crossover convergence")]
-        [GridCategory("Indicator")]
+        [GridCategory("ParametersBase")]
         public int CrossoverLookbackPeriod
         {
             get { return _crossoverLookbackPeriod; }
@@ -585,6 +609,39 @@ namespace NinjaTrader.Strategy
         }
 
 
+
+        protected int _tradeableTimeStartHour = 0;
+        [Description("Tradeable time start hour")]
+        [GridCategory("ParametersBase")]
+        public int TradeableTimeStartHour
+        {
+            get { return _tradeableTimeStartHour; }
+            set { _tradeableTimeStartHour = Math.Max(0, value); }
+        }
+        protected int _tradeableTimeStartMinute = 0;
+        [Description("Tradeable time start minute")]
+        [GridCategory("ParametersBase")]
+        public int TradeableTimeStartMinute
+        {
+            get { return _tradeableTimeStartMinute; }
+            set { _tradeableTimeStartMinute = Math.Max(0, value); }
+        }
+        protected int _tradeableTimeEndHour = 23;
+        [Description("Tradeable time end hour")]
+        [GridCategory("ParametersBase")]
+        public int TradeableTimeEndHour
+        {
+            get { return _tradeableTimeEndHour; }
+            set { _tradeableTimeEndHour = Math.Max(0, value); }
+        }
+        protected int _tradeableTimeEndMinute = 59;
+        [Description("Tradeable time end minute")]
+        [GridCategory("ParametersBase")]
+        public int TradeableTimeEndMinute
+        {
+            get { return _tradeableTimeEndMinute; }
+            set { _tradeableTimeEndMinute = Math.Max(0, value); }
+        }
 
 
         #endregion
@@ -755,7 +812,7 @@ namespace NinjaTrader.Strategy
                 // wtf propdesc can be null????????
                 if (propDesc != null && propDesc.Category != null)
                 {
-                    if (propDesc.Category.Equals("Indicator") && !IndicatorPropertiesUsed.Contains(propDesc.Name))
+                    if ((propDesc.Category.Equals("ParametersBase")) && !PropertiesExposed.Contains(propDesc.Name))
                     {
                         try
                         {

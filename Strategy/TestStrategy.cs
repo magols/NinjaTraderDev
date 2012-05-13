@@ -33,14 +33,14 @@ namespace NinjaTrader.Strategy
 
         protected override void SetupIndicatorProperties()
         {
-            IndicatorPropertiesUsed.Add("EMASlowPeriod");
-            IndicatorPropertiesUsed.Add("EMAFastPeriod");
-            IndicatorPropertiesUsed.Add("RSIPeriod");
-            IndicatorPropertiesUsed.Add("RSILower");
-            IndicatorPropertiesUsed.Add("RSIUpper");
-            IndicatorPropertiesUsed.Add("ADXPeriod");
-            IndicatorPropertiesUsed.Add("ADXMinimum");
-            IndicatorPropertiesUsed.Add("CrossoverLookbackPeriod");
+            PropertiesExposed.Add("EMASlowPeriod");
+            PropertiesExposed.Add("EMAFastPeriod");
+            PropertiesExposed.Add("RSIPeriod");
+            PropertiesExposed.Add("RSILower");
+            PropertiesExposed.Add("RSIUpper");
+            PropertiesExposed.Add("ADXPeriod");
+            PropertiesExposed.Add("ADXMinimum");
+            PropertiesExposed.Add("CrossoverLookbackPeriod");
         }
 
         /// <summary>

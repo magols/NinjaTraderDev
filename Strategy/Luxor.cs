@@ -22,24 +22,21 @@ namespace NinjaTrader.Strategy
     public class Luxor : BaseForexStrategy
     {
         #region Variables
-        // Wizard generated variables
-        private int _fastSma = 10; // Default setting for FastSMA
-        private int _slowSma = 30; // Default setting for SlowSMA
 
 
-        private int _timeStartHour = 0;
-        private int _timeStartMinute = 0;
-
-        private int _timeStopHour = 0;
-        private int _timeStopMinute = 59;
-
-
-        // User defined variables (add any user defined variables below)
         #endregion
+
+
 
         protected override void SetupIndicatorProperties()
         {
-            
+            PropertiesExposed.Add("SMASlowPeriod");
+            PropertiesExposed.Add("SMAFastPeriod");
+
+            PropertiesExposed.Add("TradeableTimeStartHour");
+            PropertiesExposed.Add("TradeableTimeStartMinute");
+            PropertiesExposed.Add("TradeableTimeEndHour");
+            PropertiesExposed.Add("TradeableTimeEndMinute");
         }
 
         /// <summary>
@@ -55,11 +52,11 @@ namespace NinjaTrader.Strategy
 
         protected override void LookForTrade()
         {
-            if ((Time[0].Hour >= TimeStartHour && Time[0].Minute >= _timeStartMinute)
-    && (Time[0].Hour <= TimeStopHour && Time[0].Minute <= _timeStopMinute))
+            if ((Time[0].Hour >= TradeableTimeStartHour && Time[0].Minute >= TradeableTimeStartMinute)
+    && (Time[0].Hour <= TradeableTimeEndHour && Time[0].Minute <= TradeableTimeEndMinute))
             {
                 // Condition set 1
-                if (CrossAbove(SMA(FastSMA), SMA(SlowSMA), 1))
+                if (CrossAbove(SMA(SMASlowPeriod), SMA(SMASlowPeriod), 1))
                 {
                     ExitShort();
                     EnterLongStop(High[0], "long");
@@ -67,7 +64,7 @@ namespace NinjaTrader.Strategy
                     BackColor = Color.LightGreen;
 
                 }
-                else if (CrossBelow(SMA(FastSMA), SMA(SlowSMA), 1))
+                else if (CrossBelow(SMA(SMAFastPeriod), SMA(SMAFastPeriod), 1))
                 {
                     ExitLong();
                     EnterShortStop(Low[0], "short");
@@ -88,37 +85,9 @@ namespace NinjaTrader.Strategy
         }
 
         #region Properties
-        [Description("")]
-        [GridCategory("Parameters")]
-        public int FastSMA
-        {
-            get { return _fastSma; }
-            set { _fastSma = Math.Max(1, value); }
-        }
-
-        [Description("")]
-        [GridCategory("Parameters")]
-        public int SlowSMA
-        {
-            get { return _slowSma; }
-            set { _slowSma = Math.Max(1, value); }
-        }
 
 
-        [Description("")]
-        [GridCategory("Parameters")]
-        public int TimeStartHour
-        {
-            get { return _timeStartHour; }
-            set { _timeStartHour = Math.Max(1, value); }
-        }
-        [Description("")]
-        [GridCategory("Parameters")]
-        public int TimeStopHour
-        {
-            get { return _timeStopHour; }
-            set { _timeStopHour = Math.Max(1, value); }
-        }
+
         #endregion
     }
 }
