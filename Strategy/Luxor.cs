@@ -50,7 +50,7 @@ namespace NinjaTrader.Strategy
 
         }
 
-        protected override void LookForTrade()
+        protected override void LookForEntry()
         {
             if ((Time[0].Hour >= TradeableTimeStartHour && Time[0].Minute >= TradeableTimeStartMinute)
     && (Time[0].Hour <= TradeableTimeEndHour && Time[0].Minute <= TradeableTimeEndMinute))

@@ -354,8 +354,6 @@
     </Compile>
     <Compile Include="Indicator\%40ZLEMA.cs" />
     <Compile Include="Indicator\AmazingCrossoverIndi.cs" />
-    <Compile Include="Indicator\AmazingCrossoverRSI.cs" />
-    <Compile Include="Indicator\AmazingEMACrossoverIndi.cs" />
     <Compile Include="Indicator\BopaCandlesticks.cs" />
     <Compile Include="Indicator\BopaDebug.cs" />
     <Compile Include="Indicator\BopaIndicator.cs" />
@@ -434,12 +432,15 @@
     <Compile Include="Strategy\AsianAssault.cs" />
     <Compile Include="Strategy\BaseForexStrategy.cs" />
     <Compile Include="Strategy\CompileMeStrat.cs" />
+    <Compile Include="Strategy\Cowabunga.cs" />
     <Compile Include="Strategy\EMAtriple.cs" />
     <Compile Include="Strategy\GekkoAUDUSD0050Strat.cs" />
     <Compile Include="Strategy\Luxor.cs" />
+    <Compile Include="Strategy\MAB.cs" />
     <Compile Include="Strategy\StrategyFramework.cs" />
     <Compile Include="Strategy\SuperTrendDemo.cs" />
     <Compile Include="Strategy\TestRandomWithATRTrail.cs" />
+    <Compile Include="Strategy\TestRandomWithTrail.cs" />
     <Compile Include="Strategy\TestStrategy.cs">
       <SubType>Code</SubType>
     </Compile>

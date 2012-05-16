@@ -28,7 +28,7 @@ namespace NinjaTrader.Strategy
         private int _maxTicksToTarget = 10;
 
         private PriorDayOHLC _indiPrior;
-
+        private SMA _sma;
         private IOrder _latestSubmittedOrder;
         #endregion
 
@@ -42,10 +42,13 @@ namespace NinjaTrader.Strategy
             _indiPrior.ShowClose = false;
             _indiPrior.ShowOpen = false;
             Add(_indiPrior);
-
-
+            
             Add(EMAofATR(MMAtrMultiplier, MMAtrEMAPeriod));
-      //      SetTrailStop(CalculationMode.Ticks, 15);
+
+            Add(PeriodType.Day, 1);
+           
+
+            //      SetTrailStop(CalculationMode.Ticks, 15);
             //SetStopLoss(CalculationMode.Ticks, 20);
             //SetProfitTarget(CalculationMode.Ticks, 30);
 
@@ -55,8 +58,9 @@ namespace NinjaTrader.Strategy
         {
 
             PropertiesExposed.Add("TradeableTimeStartHour");
-          
             PropertiesExposed.Add("TradeableTimeEndHour");
+            PropertiesExposed.Add("SMAFastPeriod");
+       
           
         }
 
@@ -90,8 +94,9 @@ namespace NinjaTrader.Strategy
         private List<string> _orderDates = new List<string>();
        
 
-        protected override void LookForTrade()
+        protected override void LookForEntry()
         {
+            _sma = SMA(BarsArray[1], SMAFastPeriod);
 
             if (!EntryOk()) return;
             if (_latestSubmittedOrder != null) return;
@@ -103,7 +108,7 @@ namespace NinjaTrader.Strategy
 
 
             // go long?
-            if (Close[0] > priorLow && Close[0] <= priorLow + (TickSize * _maxTicksToTarget) && Falling(Close))
+            if (Close[0] > priorLow && Close[0] <= priorLow + (TickSize * _maxTicksToTarget) && Falling(Close) && Rising(_sma))
             {
                  _latestSubmittedOrder = EnterLongLimit(0, true, DefaultQuantity, priorLow, "long");
                 _tradeState = TradeState.InitialStop;
@@ -122,7 +127,7 @@ namespace NinjaTrader.Strategy
             }
 
             // go short?
-            if (Close[0] < priorHigh && Close[0] >= priorHigh - (TickSize * _maxTicksToTarget) && Rising(Close))
+            if (Close[0] < priorHigh && Close[0] >= priorHigh - (TickSize * _maxTicksToTarget) && Rising(Close) && Falling(_sma))
             {
                 _latestSubmittedOrder = EnterShortLimit(0, true, DefaultQuantity, priorHigh, "short");
                 _tradeState = TradeState.InitialStop;

@@ -21,18 +21,13 @@ namespace NinjaTrader.Strategy
     /// Enter the description of your strategy here
     /// </summary>
     [Description("Enter the description of your strategy here")]
-    public sealed class TestRandomWithATRTrail : BaseForexStrategy
+    public class TestRandomWithATRTrail : BaseForexStrategy
     {
         private Random _rand = null;
      
         private const int GO_LONG = 1;
         private const int GO_SHORT = 0;
 
-        public TestRandomWithATRTrail()
-        {
-            SetupIndicatorProperties();
-            ExitStrategy = ExitType.IntialToBreakevenToTrailing;
-        }
 
         protected override void SetupIndicatorProperties()
         {
@@ -62,7 +57,7 @@ namespace NinjaTrader.Strategy
 
         }
 
-        protected override void LookForTrade()
+        protected override void LookForEntry()
         {
                 EnterTrade();
         }

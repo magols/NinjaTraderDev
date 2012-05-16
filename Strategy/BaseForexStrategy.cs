@@ -77,7 +77,7 @@ namespace NinjaTrader.Strategy
        // to keep unique strategy stuff 
         protected abstract void MyOnBarUpdate();
         // when we are flat, we are looking for new opportunities to entry
-        protected abstract void LookForTrade();
+        protected abstract void LookForEntry();
    
         // once we have entried, we have to manage the positions until exit, and here, 
         //protected abstract void ManagePositions();
@@ -118,11 +118,12 @@ namespace NinjaTrader.Strategy
                 if (IsFlat)
                 {
                  SetStopLoss(CalculationMode.Ticks, _mmInitialSL);
-                    LookForTrade();
+                    LookForEntry();
                 }
                 else
                 {
                     ManagePositions();
+                    MyManagePosition();
                 }
             }
           
@@ -188,8 +189,10 @@ namespace NinjaTrader.Strategy
                     ManageTradeBySimple();
                     break;
                     // if type is set to Custom
-                default: 
+                case ExitType.Custom:
                     MyManagePosition();
+                    break;
+                default: 
                     break;
 
             }
@@ -498,6 +501,15 @@ namespace NinjaTrader.Strategy
 
         #region base Properties
 
+        protected int _smaPeriod = 10; // Default setting for EMASlowPeriod
+        [Description("Period for the SMA")]
+        [GridCategory("ParametersBase")]
+        public int SMAPeriod
+        {
+            get { return _smaPeriod; }
+            set { _smaPeriod = Math.Max(1, value); }
+        }
+
         protected int _smaSlowPeriod = 10; // Default setting for EMASlowPeriod
         [Description("Period for the slow SMA")]
         [GridCategory("ParametersBase")]
@@ -534,6 +546,24 @@ namespace NinjaTrader.Strategy
             set { _emaFastPeriod = Math.Max(1, value); }
         }
 
+        protected int _bollingerPeriod = 14; // Default setting for RSIPeriod
+        [Description("Period for Bollinger")]
+        [GridCategory("ParametersBase")]
+        public int BollingerPeriod
+        {
+            get { return _bollingerPeriod; }
+            set { _bollingerPeriod = Math.Max(1, value); }
+        }
+
+        protected double _bollingerStdDev = 2; // Default setting for RSIPeriod
+        [Description("Period for Bollinger Std dev")]
+        [GridCategory("ParametersBase")]
+        public double BollingerStdDev
+        {
+            get { return _bollingerStdDev; }
+            set { _bollingerStdDev = Math.Max(1, value); }
+        }
+
         protected int _rsiPeriod = 10; // Default setting for RSIPeriod
         [Description("Period for RSI")]
         [GridCategory("ParametersBase")]
@@ -543,6 +573,14 @@ namespace NinjaTrader.Strategy
             set { _rsiPeriod = Math.Max(1, value); }
         }
 
+        protected int _rsiSmooth = 3; // Default setting for RSIPeriod
+        [Description("RSI smoothing")]
+        [GridCategory("ParametersBase")]
+        public int RSISmooth
+        {
+            get { return _rsiSmooth; }
+            set { _rsiSmooth = Math.Max(1, value); }
+        }
 
 
         protected int _rsiLower = 45;
@@ -562,6 +600,84 @@ namespace NinjaTrader.Strategy
             get { return _rsiUpper; }
             set { _rsiUpper = Math.Max(1, value); }
         }
+
+
+        protected int _stochPeriodD = 14;
+        [Description("Period for Stochastics PeriodD (slow)")]
+        [GridCategory("ParametersBase")]
+        public int StochPeriodD
+        {
+            get { return _stochPeriodD; }
+            set { _stochPeriodD = Math.Max(1, value); }
+        }
+        protected int _stochPeriodK = 7;
+        [Description("Period for Stochastics PeriodK (fast)")]
+        [GridCategory("ParametersBase")]
+        public int StochPeriodK
+        {
+            get { return _stochPeriodK; }
+            set { _stochPeriodK = Math.Max(1, value); }
+        }
+
+        protected int _stochSmooth = 3;
+        [Description("Period for Stochastics smoothing")]
+        [GridCategory("ParametersBase")]
+        public int StochSmooth
+        {
+            get { return _stochSmooth; }
+            set { _stochSmooth = Math.Max(1, value); }
+        }
+
+
+        protected int _stochUpper = 80;
+        [Description("Period for Stochastics upper")]
+        [GridCategory("ParametersBase")]
+        public int StochUpper
+        {
+            get { return _stochUpper; }
+            set { _stochUpper = Math.Max(1, value); }
+        }
+        protected int _stochLower = 20;
+        [Description("Period for Stochastics lower")]
+        [GridCategory("ParametersBase")]
+        public int StochLower
+        {
+            get { return _stochLower; }
+            set { _stochLower = Math.Max(1, value); }
+        }
+
+
+
+
+        protected int _macdFast = 12;
+        [Description("Period for MACD Fast")]
+        [GridCategory("ParametersBase")]
+        public int MACDFast
+        {
+            get { return _macdFast; }
+            set { _macdFast = Math.Max(1, value); }
+        }
+        protected int _macdSlow = 26;
+        [Description("Period for MACD Slow")]
+        [GridCategory("ParametersBase")]
+        public int MACDSlow
+        {
+            get { return _macdSlow; }
+            set { _macdSlow = Math.Max(1, value); }
+        }
+        protected int _macdSmooth = 9;
+        [Description("Period for MACD smoothing")]
+        [GridCategory("ParametersBase")]
+        public int MACDSmooth
+        {
+            get { return _macdSmooth; }
+            set { _macdSmooth = Math.Max(1, value); }
+        }
+
+
+
+
+
 
         protected int _adxPeriod = 10; // Default setting for ADXPeriod
         [Description("Period for ADX")]

@@ -68,7 +68,7 @@ namespace NinjaTrader.Strategy
             var a = _indi[0];
         }
 
-        protected override void LookForTrade()
+        protected override void LookForEntry()
         {
             if (_indi.Signal == 0) return;
 

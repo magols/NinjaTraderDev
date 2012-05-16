@@ -62,7 +62,7 @@ namespace NinjaTrader.Strategy
 
         }
 
-        protected override void LookForTrade()
+        protected override void LookForEntry()
         {
                 EnterTrade();
         }
