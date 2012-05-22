@@ -374,10 +374,13 @@
     <Compile Include="Indicator\GekkoAUDUSD0050.cs" />
     <Compile Include="Indicator\GekkoEMAcrossover.cs" />
     <Compile Include="Indicator\GekkoTrendByMAIndicator.cs" />
+    <Compile Include="Indicator\MACD_ZeroLag_Colors.cs" />
     <Compile Include="Indicator\TestIndicator1.cs" />
     <Compile Include="Indicator\TestIndicator2.cs" />
     <Compile Include="Indicator\TestProperties.cs" />
     <Compile Include="Indicator\UserDefinedMethods.cs" />
+    <Compile Include="Indicator\ZeroLagEMA.cs" />
+    <Compile Include="Indicator\ZeroLagMacIndi.cs" />
     <Compile Include="MarketAnalyzer\%40AskPrice.cs" />
     <Compile Include="MarketAnalyzer\%40AverageDailyVolume.cs" />
     <Compile Include="MarketAnalyzer\%40Beta.cs" />
@@ -445,6 +448,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Strategy\UserDefinedMethods.cs" />
+    <Compile Include="Strategy\ZeroLagMac.cs" />
+    <Compile Include="Strategy\ZeroLagMacStrat.cs" />
     <Compile Include="Type\%40BarsTypes.cs" />
     <Compile Include="Type\%40ChartStyles.cs" />
     <Compile Include="Type\%40DefaultFillType.cs" />

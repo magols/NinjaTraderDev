@@ -95,6 +95,10 @@ namespace NinjaTrader.Custom.Strategy
 
         }
 
+        protected override void LookForExit()
+        {
+            throw new NotImplementedException();
+        }
 
 
         protected override void MyManagePosition()

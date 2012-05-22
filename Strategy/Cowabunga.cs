@@ -108,6 +108,11 @@ namespace NinjaTrader.Custom.Strategy
             }
         }
 
+        protected override void LookForExit()
+        {
+            throw new NotImplementedException();
+        }
+
 
         private TrendDirection Get15MinuteDirection()
         {

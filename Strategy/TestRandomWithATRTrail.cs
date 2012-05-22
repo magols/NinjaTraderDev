@@ -62,6 +62,11 @@ namespace NinjaTrader.Strategy
                 EnterTrade();
         }
 
+        protected override void LookForExit()
+        {
+            throw new NotImplementedException();
+        }
+
         private void EnterTrade()
         {
             int toss = _rand.Next(2);

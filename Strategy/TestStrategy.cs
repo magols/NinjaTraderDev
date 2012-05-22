@@ -86,6 +86,11 @@ namespace NinjaTrader.Strategy
             _tradeState = TradeState.InitialStop;
         }
 
+        protected override void LookForExit()
+        {
+            throw new NotImplementedException();
+        }
+
         protected override void MyManagePosition()
         {
             throw new NotImplementedException();
